@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "ES2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": true,
+    //
+    "noUncheckedIndexedAccess": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "useUnknownInCatchVariables": true,
+    //
+    "strict": true,
+    "types": ["node", "jest"],
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@test/*": ["./test/*"],
+      "@shared/*": ["./src/modules/shared/*"],
+      "@auth/*": ["./src/modules/auth/*"],
+      "@user/*": ["./src/modules/user/*"],
+      "@exchange/*": ["./src/modules/exchange/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

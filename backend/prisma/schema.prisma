@@ -1,0 +1,77 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @unique
+  username  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+  wallet Wallet?
+}
+
+model Wallet {
+  btc Float @default(0)
+  usd Float @default(0)
+
+  id   String @unique
+  user User   @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderSide {
+  buy
+  sell
+}
+
+enum OrderStatus {
+  active
+  partial
+  complete
+  cancelled
+}
+
+model Order {
+  id     String      @unique
+  side   OrderSide
+  price  Float // USD per BTC
+  amount Float // BTC
+  filled Float // BTC filled so far
+  status OrderStatus
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, userId], map: "idx_status_userId")
+}
+
+model Match {
+  id String @unique
+
+  price       Float
+  volume      Float
+  buyOrderId  String
+  sellOrderId String
+  buyUserId   String
+  sellUserId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt], map: "idx_createdAt")
+  @@index([buyUserId], map: "idx_buyUserId")
+  @@index([sellUserId], map: "idx_sellUserId")
+}

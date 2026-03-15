@@ -1,0 +1,15 @@
+ARG NODE_VERSION=24.14.0-alpine
+FROM node:${NODE_VERSION}
+WORKDIR /usr/src/app
+## Dependencies
+RUN apk add --no-cache openssl procps
+##
+COPY ../package.json ../yarn.lock ./
+RUN yarn install
+COPY ../prisma ./prisma
+RUN npx prisma generate
+
+
+EXPOSE 4000
+
+ENTRYPOINT [ "sh", "/usr/src/util/entrypoint.dev.sh" ]

@@ -1,0 +1,87 @@
+version: "3.9"
+name: "exchange-dev"
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - "3000:80"
+    volumes:
+      - ./util/nginx.dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+      - postgres
+      - frontend
+    networks:
+      - exchange_dev_network
+    environment:
+      UPLOAD_FILE_SIZE_LIMIT: 20
+
+  app:
+    build:
+      context: ../backend
+      dockerfile: ../.docker/Dockerfile.backend.dev
+    env_file: ../backend/.env.dev
+    container_name: exchange-api-dev
+    image: exchange-api
+    # Uncomment this line in case you are in M1
+    # platform: linux/amd64
+    volumes:
+      - ../backend/:/usr/src/app
+      - ./util:/usr/src/app/.docker/util
+    # ports:
+    #   - "3000:3000"
+    networks:
+      - "exchange_dev_network"
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres-container-dev
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "exchange"
+    volumes:
+      - exchange-postgres:/var/lib/postgresql/exchange-data
+    networks:
+      - "exchange_dev_network"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../.docker/Dockerfile.frontend.dev
+      args:
+        - NODE_ENV=development
+    container_name: exchange-frontend-dev
+    image: exchange-frontend-dev
+    volumes:
+      - ../frontend/:/usr/src/app
+    command: yarn dev --host 0.0.0.0
+    networks:
+      - "exchange_dev_network"
+
+  cache:
+    image: redis:7.4-alpine
+    #restart: always
+    #ports:
+    #  - "6379:6379"
+    #command: redis-server --save 20 1 --loglevel warning --requirepass yourpassword
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - cache:/data
+    networks:
+      - "exchange_dev_network"
+
+networks:
+  exchange_dev_network:
+
+volumes:
+  exchange-postgres:
+
+  cache:
+    driver: local

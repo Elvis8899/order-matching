@@ -1,7 +1,8 @@
-import { ExchangeProvider, useExchange } from '@/lib/ExchangeContext';
-import Login from '@/pages/Login';
-import Exchange from '@/pages/Exchange';
-import { Toaster as Sonner } from '@/components/ui/sonner';
+import { useExchange } from "@/lib/ExchangeContext";
+import Login from "@/pages/Login";
+import Exchange from "@/pages/Exchange";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { ExchangeProvider } from "@/lib/ExchangeProvider";
 
 const AppContent = () => {
   const { user } = useExchange();

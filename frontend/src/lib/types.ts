@@ -1,12 +1,14 @@
 export interface User {
   id: string;
   username: string;
-  btcBalance: number;
-  usdBalance: number;
+}
+export interface Wallet {
+  btc: number;
+  usd: number;
 }
 
-export type OrderSide = 'buy' | 'sell';
-export type OrderStatus = 'active' | 'partial' | 'complete' | 'cancelled';
+export type OrderSide = "buy" | "sell";
+export type OrderStatus = "active" | "partial" | "complete" | "cancelled";
 
 export interface Order {
   id: string;
@@ -32,6 +34,7 @@ export interface Match {
 
 export interface OrderBookLevel {
   price: number;
+  amount: number;
   volume: number;
 }
 
@@ -41,4 +44,11 @@ export interface Stats {
   usdVolume24h: number;
   high24h: number | null;
   low24h: number | null;
+}
+
+export interface PaginatedResponse<Data> {
+  count: number;
+  limit: number;
+  page: number;
+  data: Data[];
 }

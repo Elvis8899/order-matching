@@ -1,8 +1,0 @@
-{
-  "name": "order-matching",
-  "version": "1.0.0",
-  "description": "Order Matching System",
-  "main": "index.js",
-  "author": "Alexandre Elvis de Souza <alexandre.elvis.souza@gmail.com>",
-  "license": "MIT"
-}
