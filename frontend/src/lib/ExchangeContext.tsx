@@ -1,5 +1,13 @@
 import { createContext, useContext } from "react";
-import { User, Order, Match, OrderBookLevel, Stats, Wallet } from "./types";
+import {
+  User,
+  Order,
+  Match,
+  Stats,
+  Wallet,
+  PaginationHook,
+  GroupedOrder,
+} from "./types";
 
 interface ExchangeState {
   user: User | null;
@@ -7,10 +15,11 @@ interface ExchangeState {
   login: (username: string) => void;
   logout: () => void;
   stats: Stats;
-  orderBook: { bids: OrderBookLevel[]; asks: OrderBookLevel[] };
-  globalMatches: Match[];
-  myOrders: Order[];
-  myMatches: Match[];
+  groupedAskOrders: PaginationHook<GroupedOrder>;
+  groupedSellOrders: PaginationHook<GroupedOrder>;
+  globalMatches: PaginationHook<Match>;
+  myOrders: PaginationHook<Order>;
+  myMatches: PaginationHook<Match>;
   submitOrder: (
     side: "buy" | "sell",
     price: number,

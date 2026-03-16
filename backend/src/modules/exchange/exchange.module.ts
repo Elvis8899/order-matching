@@ -18,6 +18,8 @@ import { GetWalletByIdController } from "@src/modules/exchange/queries/getWallet
 import { GetWalletByIdQueryHandler } from "@src/modules/exchange/queries/getWalletById/getWalletById.query";
 import { MatchStatisticsController } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.controller";
 import { MatchStatisticsQueryHandler } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.query";
+import { PaginatedGroupedOrderController } from "@src/modules/exchange/queries/paginatedGroupedOrders/paginatedGroupedOrders.controller";
+import { PaginatedGroupedOrdersQueryHandler } from "@src/modules/exchange/queries/paginatedGroupedOrders/paginatedGroupedOrders.query";
 import { PaginatedMatchController } from "@src/modules/exchange/queries/paginatedMatches/paginatedMatches.controller";
 import { PaginatedMatchesQueryHandler } from "@src/modules/exchange/queries/paginatedMatches/paginatedMatches.query";
 import { PaginatedOrderController } from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.controller";
@@ -37,6 +39,7 @@ const controllers = [
   CancelOrderController,
   MatchStatisticsController,
   //
+  PaginatedGroupedOrderController,
 ];
 const commandHandlers: Provider[] = [
   CreateWalletHandler,
@@ -49,6 +52,7 @@ const queryHandlers: Provider[] = [
   GetWalletByIdQueryHandler,
   PaginatedOrdersQueryHandler,
   PaginatedMatchesQueryHandler,
+  PaginatedGroupedOrdersQueryHandler,
 ];
 const subscribers = [
   UserCreatedSubscriber,

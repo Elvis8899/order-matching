@@ -1,4 +1,11 @@
-import { Match, Order, PaginatedResponse, Stats, User } from "@/lib/types";
+import {
+  GroupedOrder,
+  Match,
+  Order,
+  PaginatedResponse,
+  PaginationOptions,
+  Stats,
+} from "@/lib/types";
 import { http } from "./api";
 
 export class ExchangeService {
@@ -12,15 +19,33 @@ export class ExchangeService {
     return http.post<void>("orders", order);
   }
 
-  static async getOrdersPaginated(userId?: string) {
+  static async getOrdersPaginated(
+    userId?: string,
+    options?: PaginationOptions,
+  ) {
+    const { page = 0, limit = 10 } = options || {};
     return http.get<PaginatedResponse<Order>>("orders", {
-      params: { page: 0, limit: 1000, userId },
+      params: { page, limit, userId },
     });
   }
 
-  static async getMatchesPaginated(userId?: string) {
+  static async getMatchesPaginated(
+    userId?: string,
+    options?: PaginationOptions,
+  ) {
+    const { page = 0, limit = 10 } = options || {};
     return http.get<PaginatedResponse<Match>>("matches", {
-      params: { page: 0, limit: 1000, userId },
+      params: { page, limit, userId },
+    });
+  }
+
+  static async getGroupedOrdersPaginated(
+    side: "buy" | "sell",
+    options?: PaginationOptions,
+  ) {
+    const { page = 0, limit = 10 } = options || {};
+    return http.get<PaginatedResponse<GroupedOrder>>("orders/grouped", {
+      params: { page, limit, side },
     });
   }
 

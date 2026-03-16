@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Match, Order, Stats, User, Wallet } from "./types";
-import { getOrderBook, subscribe } from "./exchange";
+import {
+  GroupedOrder,
+  Match,
+  Order,
+  PaginationOptions,
+  Stats,
+  User,
+  Wallet,
+} from "./types";
+import { subscribe } from "./exchange";
 import { AuthService } from "@/services/authService";
 import { ExchangeService } from "@/services/exchangeService";
 import { ExchangeContext } from "@/lib/ExchangeContext";
 import { socket } from "@/services/socket";
+import { defaultPaginatedResponse, usePaginatedHook } from "@/lib/utils";
 
 export function ExchangeProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(AuthService.getUser());
@@ -15,10 +24,55 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
     high24h: null,
     low24h: null,
   });
-  const [myOrders, setMyOrders] = useState<Order[]>([]);
-  const [allOrders, setAllOrders] = useState<Order[]>([]);
-  const [myMatches, setMyMatches] = useState<Match[]>([]);
-  const [globalMatches, setMatches] = useState<Match[]>([]);
+  const myOrders = usePaginatedHook<Order>(
+    useCallback(
+      (options: PaginationOptions) =>
+        user
+          ? ExchangeService.getOrdersPaginated(user?.id, options).then(
+              (res) => res.data,
+            )
+          : Promise.resolve(defaultPaginatedResponse()),
+      [user],
+    ),
+  );
+  const groupedAskOrders = usePaginatedHook<GroupedOrder>(
+    useCallback(
+      (options: PaginationOptions) =>
+        ExchangeService.getGroupedOrdersPaginated("buy", options).then(
+          (res) => res.data,
+        ),
+      [],
+    ),
+  );
+  const groupedSellOrders = usePaginatedHook<GroupedOrder>(
+    useCallback(
+      (options: PaginationOptions) =>
+        ExchangeService.getGroupedOrdersPaginated("sell", options).then(
+          (res) => res.data,
+        ),
+      [],
+    ),
+  );
+  const myMatches = usePaginatedHook<Match>(
+    useCallback(
+      (options: PaginationOptions) =>
+        user
+          ? ExchangeService.getMatchesPaginated(user?.id, options).then(
+              (res) => res.data,
+            )
+          : Promise.resolve(defaultPaginatedResponse()),
+      [user],
+    ),
+  );
+  const globalMatches = usePaginatedHook<Match>(
+    useCallback(
+      (options: PaginationOptions) =>
+        ExchangeService.getMatchesPaginated(undefined, options).then(
+          (res) => res.data,
+        ),
+      [],
+    ),
+  );
   const [wallet, setWallet] = useState<Wallet>({ btc: 0, usd: 0 });
   const [tick, setTick] = useState(0);
   const [fillFormAsk, setFillFormAsk] = useState<{
@@ -53,27 +107,19 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
     setTick((t) => t + 1);
 
     const handleMyInfo = () => {
-      ExchangeService.getOrdersPaginated(userId).then((res) => {
-        setMyOrders(res.data.data);
-      });
-      ExchangeService.getMatchesPaginated(userId).then((res) => {
-        setMyMatches(res.data.data);
-      });
+      myOrders.refresh();
+      myMatches.refresh();
       ExchangeService.getWalletById().then((res) => setWallet(res.data));
     };
 
     const handleGlobalInfo = () => {
-      ExchangeService.getMatchesPaginated().then((res) => {
-        setMatches(res.data.data);
-      });
-      ExchangeService.getOrdersPaginated().then((res) => {
-        setAllOrders(res.data.data);
-      });
+      globalMatches.refresh();
+      groupedAskOrders.refresh();
+      groupedSellOrders.refresh();
     };
 
     setTimeout(
       () => {
-        console.log("tick", tick, user, userId);
         if (userId) {
           handleMyInfo();
           handleGlobalInfo();
@@ -82,7 +128,15 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
       },
       tick ? 1000 : 0,
     );
-  }, [user, userId, tick]);
+  }, [
+    userId,
+    tick,
+    globalMatches,
+    myMatches,
+    myOrders,
+    groupedAskOrders,
+    groupedSellOrders,
+  ]);
 
   const handleStatistics = () => {
     ExchangeService.matchStatistics().then((res) => {
@@ -110,11 +164,10 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
     socket.disconnect();
     setUser(null);
     setWallet({ btc: 0, usd: 0 });
-    setMyMatches([]);
-    setMyOrders([]);
+    myOrders.reset();
+    myMatches.reset();
+    globalMatches.reset();
   };
-
-  const orderBook = getOrderBook(allOrders);
 
   const submitOrder = async (
     side: "buy" | "sell",
@@ -139,7 +192,6 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
   const cancelUserOrder = async (orderId: string) => {
     if (!user) return false;
     const result = await ExchangeService.cancelOrder(orderId);
-    console.log(result.status);
     const success = result.status === 200;
     if (success) refresh();
     return success;
@@ -155,7 +207,8 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
         login: handleLogin,
         logout: handleLogout,
         stats,
-        orderBook,
+        groupedAskOrders,
+        groupedSellOrders,
         globalMatches,
         myOrders,
         myMatches,

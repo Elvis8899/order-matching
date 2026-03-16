@@ -32,7 +32,7 @@ export interface Match {
   createdAt: number;
 }
 
-export interface OrderBookLevel {
+export interface GroupedOrder {
   price: number;
   amount: number;
   volume: number;
@@ -46,9 +46,22 @@ export interface Stats {
   low24h: number | null;
 }
 
+export interface PaginationOptions {
+  limit?: number;
+  page?: number;
+}
 export interface PaginatedResponse<Data> {
   count: number;
   limit: number;
   page: number;
   data: Data[];
+}
+
+export interface PaginationHook<U> {
+  data: PaginatedResponse<U>;
+  pages: number;
+  setLimit: (limit: number) => void;
+  setPage: (page: number) => void;
+  refresh: () => void;
+  reset: () => void;
 }

@@ -5,6 +5,7 @@ import {
 } from "@shared/utils/database/repository.port";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 import {
+  GroupedOrder,
   Order,
   OrderSideEnum,
   OrderStatusEnum,
@@ -21,6 +22,11 @@ export const OrderFindQuery = z.object({
 });
 export type OrderFindQuery = z.infer<typeof OrderFindQuery>;
 
+export const GroupedOrderQuery = z.object({
+  side: z.enum(OrderSideEnum),
+});
+export type GroupedOrderQuery = z.infer<typeof GroupedOrderQuery>;
+
 export abstract class OrderRepository implements RepositoryDefaultPort<Order> {
   findById!: (id: string) => TE.TaskEither<Error, O.Option<Order>>;
   findAll!: (param?: {
@@ -31,4 +37,8 @@ export abstract class OrderRepository implements RepositoryDefaultPort<Order> {
   ) => TE.TaskEither<Error, Paginated<Order>>;
   deleteById!: (id: string) => TE.TaskEither<Error, void>;
   save!: (order: Order) => TE.TaskEither<Error, void>;
+  //
+  paginatedGroupedOrders!: (
+    params: PaginatedQueryParams<GroupedOrderQuery>,
+  ) => TE.TaskEither<Error, Paginated<GroupedOrder>>;
 }

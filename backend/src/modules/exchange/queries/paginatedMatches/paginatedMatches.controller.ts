@@ -14,7 +14,7 @@ import { PaginatedMatchesResponseDto } from "@src/modules/exchange/dtos/match.dt
 import { PaginatedMatchesQuery } from "@src/modules/exchange/queries/paginatedMatches/paginatedMatches.query";
 
 @Controller("v1/")
-@ApiTags("Usuários")
+@ApiTags("Transações")
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 export class PaginatedMatchController {
@@ -24,7 +24,7 @@ export class PaginatedMatchController {
   ) {}
 
   @Get("matches")
-  @ApiOperation({ summary: "Listar Vendas" })
+  @ApiOperation({ summary: "Listar Transações" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: PaginatedMatchesResponseDto,

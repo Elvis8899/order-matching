@@ -27,3 +27,10 @@ export const Order = z
   .and(BaseDateEntity);
 
 export type Order = z.infer<typeof Order>;
+
+export const GroupedOrder = z.object({
+  price: z.number(),
+  amount: z.number(),
+  volume: z.number(),
+});
+export type GroupedOrder = z.infer<typeof GroupedOrder>;

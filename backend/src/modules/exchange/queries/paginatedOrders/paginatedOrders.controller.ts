@@ -14,7 +14,7 @@ import { PaginatedOrderResponseDto } from "@src/modules/exchange/dtos/order.dto"
 import { PaginatedOrdersQuery } from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.query";
 
 @Controller("v1/")
-@ApiTags("Usuários")
+@ApiTags("Pedidos")
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 export class PaginatedOrderController {
@@ -24,7 +24,7 @@ export class PaginatedOrderController {
   ) {}
 
   @Get("orders")
-  @ApiOperation({ summary: "Listar Usuários" })
+  @ApiOperation({ summary: "Listar Pedidos" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: PaginatedOrderResponseDto,

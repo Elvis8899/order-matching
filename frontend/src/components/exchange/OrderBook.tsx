@@ -1,3 +1,4 @@
+import Pagination from "@/components/shared/Pagination";
 import { useExchange } from "@/lib/ExchangeContext";
 
 const fmt = (n: number, d = 2) =>
@@ -7,7 +8,12 @@ const fmt = (n: number, d = 2) =>
   });
 
 const OrderBook = () => {
-  const { orderBook, setFillFormBuy, setFillFormAsk } = useExchange();
+  const {
+    groupedAskOrders,
+    groupedSellOrders,
+    setFillFormBuy,
+    setFillFormAsk,
+  } = useExchange();
 
   const handleBidClick = (price: number, amount: number) => {
     // Clicking a bid fills the sell form
@@ -34,7 +40,7 @@ const OrderBook = () => {
             </tr>
           </thead>
           <tbody className="font-mono">
-            {orderBook.bids.length === 0 && (
+            {groupedAskOrders.data.data.length === 0 && (
               <tr>
                 <td
                   colSpan={2}
@@ -44,7 +50,7 @@ const OrderBook = () => {
                 </td>
               </tr>
             )}
-            {orderBook.bids.map((level, i) => (
+            {groupedAskOrders.data.data.map((level, i) => (
               <tr
                 key={i}
                 className="border-t border-border/50 cursor-pointer hover:bg-accent transition-colors"
@@ -58,6 +64,8 @@ const OrderBook = () => {
             ))}
           </tbody>
         </table>
+
+        <Pagination state={groupedAskOrders} />
       </div>
 
       {/* Asks */}
@@ -73,7 +81,7 @@ const OrderBook = () => {
             </tr>
           </thead>
           <tbody className="font-mono">
-            {orderBook.asks.length === 0 && (
+            {groupedSellOrders.data.data.length === 0 && (
               <tr>
                 <td
                   colSpan={2}
@@ -83,7 +91,7 @@ const OrderBook = () => {
                 </td>
               </tr>
             )}
-            {orderBook.asks.map((level, i) => (
+            {groupedSellOrders.data.data.map((level, i) => (
               <tr
                 key={i}
                 className="border-t border-border/50 cursor-pointer hover:bg-accent transition-colors"
@@ -97,6 +105,7 @@ const OrderBook = () => {
             ))}
           </tbody>
         </table>
+        <Pagination state={groupedSellOrders} />
       </div>
     </div>
   );
