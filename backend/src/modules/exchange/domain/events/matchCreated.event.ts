@@ -1,3 +1,4 @@
+import { MatchStatistics } from "@src/modules/exchange/domain/match.entity";
 import { z } from "zod";
 
 export const MATCH_CREATED = "match.created";
@@ -11,3 +12,12 @@ export const MatchCreatedEvent = z.object({
 });
 
 export type MatchCreatedEvent = z.infer<typeof MatchCreatedEvent>;
+
+export const SOCKET_MATCH_CREATED = "socket.match.created";
+
+export const SocketMatchCreatedEvent = z.object({
+  eventKey: z.literal(SOCKET_MATCH_CREATED),
+  payload: MatchStatistics,
+});
+
+export type SocketMatchCreatedEvent = z.infer<typeof SocketMatchCreatedEvent>;

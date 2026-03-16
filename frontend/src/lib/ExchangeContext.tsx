@@ -18,8 +18,10 @@ interface ExchangeState {
   ) => Promise<{ success: boolean; error?: string }>;
   cancelUserOrder: (orderId: string) => Promise<boolean>;
   refresh: () => void;
-  fillForm: { price: number; amount: number } | null;
-  setFillForm: (v: { price: number; amount: number } | null) => void;
+  fillFormAsk: { price: number; amount: number } | null;
+  setFillFormAsk: (v: { price: number; amount: number } | null) => void;
+  fillFormBuy: { price: number; amount: number } | null;
+  setFillFormBuy: (v: { price: number; amount: number } | null) => void;
 }
 
 export const ExchangeContext = createContext<ExchangeState>(null!);

@@ -16,19 +16,23 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
     low24h: null,
   });
   const [myOrders, setMyOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [myMatches, setMyMatches] = useState<Match[]>([]);
   const [globalMatches, setMatches] = useState<Match[]>([]);
   const [wallet, setWallet] = useState<Wallet>({ btc: 0, usd: 0 });
   const [tick, setTick] = useState(0);
-  const [fillForm, setFillForm] = useState<{
+  const [fillFormAsk, setFillFormAsk] = useState<{
     price: number;
     amount: number;
   } | null>(null);
-
+  const [fillFormBuy, setFillFormBuy] = useState<{
+    price: number;
+    amount: number;
+  } | null>(null);
+  let userId = user?.id;
   useEffect(() => {
     // no-op if the socket is already connected
     socket.connect();
-
     return () => {
       socket.disconnect();
     };
@@ -39,37 +43,46 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
       setStats(value);
     }
 
-    socket.on("post.match.statistics", onStatisticsEvent);
+    socket.on("socket.match.created", onStatisticsEvent);
 
     return () => {
-      socket.off("post.match.statistics", onStatisticsEvent);
+      socket.off("socket.match.created", onStatisticsEvent);
     };
   }, []);
   const refresh = useCallback(() => {
     setTick((t) => t + 1);
 
-    const handleMyOrders = () =>
-      ExchangeService.getOrdersPaginated(user?.id).then((res) => {
+    const handleMyInfo = () => {
+      ExchangeService.getOrdersPaginated(userId).then((res) => {
         setMyOrders(res.data.data);
       });
-    const handleMatches = () =>
+      ExchangeService.getMatchesPaginated(userId).then((res) => {
+        setMyMatches(res.data.data);
+      });
+      ExchangeService.getWalletById().then((res) => setWallet(res.data));
+    };
+
+    const handleGlobalInfo = () => {
       ExchangeService.getMatchesPaginated().then((res) => {
         setMatches(res.data.data);
       });
-    const handleWallet = () =>
-      ExchangeService.getWalletById().then((res) => setWallet(res.data));
-    const handleMyMatches = () =>
-      ExchangeService.getMatchesPaginated(user?.id).then((res) => {
-        setMyMatches(res.data.data);
+      ExchangeService.getOrdersPaginated().then((res) => {
+        setAllOrders(res.data.data);
       });
-    setTimeout(() => {
-      handleMyOrders();
-      handleWallet();
-      handleMatches();
-      handleMyMatches();
-      if (!socket.connected) socket.connect();
-    }, 1000);
-  }, [user]);
+    };
+
+    setTimeout(
+      () => {
+        console.log("tick", tick, user, userId);
+        if (userId) {
+          handleMyInfo();
+          handleGlobalInfo();
+          if (!socket.connected) socket.connect();
+        }
+      },
+      tick ? 1000 : 0,
+    );
+  }, [user, userId, tick]);
 
   const handleStatistics = () => {
     ExchangeService.matchStatistics().then((res) => {
@@ -85,8 +98,9 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => subscribe(refresh), [refresh]);
 
   const handleLogin = async (username: string) => {
-    const user = await AuthService.login(username);
-    setUser(user);
+    const userFromLogin = await AuthService.login(username);
+    setUser(userFromLogin);
+    userId = userFromLogin.id;
     socket.connect();
     refresh();
   };
@@ -95,9 +109,12 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
     AuthService.logout();
     socket.disconnect();
     setUser(null);
+    setWallet({ btc: 0, usd: 0 });
+    setMyMatches([]);
+    setMyOrders([]);
   };
 
-  const orderBook = getOrderBook(myOrders);
+  const orderBook = getOrderBook(allOrders);
 
   const submitOrder = async (
     side: "buy" | "sell",
@@ -145,8 +162,10 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
         submitOrder,
         cancelUserOrder,
         refresh,
-        fillForm,
-        setFillForm,
+        fillFormAsk,
+        setFillFormAsk,
+        fillFormBuy,
+        setFillFormBuy,
       }}
     >
       {children}

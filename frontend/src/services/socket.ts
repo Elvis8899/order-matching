@@ -10,6 +10,6 @@ export const socket = io(URL, {
   path: "/v1/socket.io",
   autoConnect: false,
   auth: {
-    authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
+    token: localStorage.getItem(TOKEN_KEY),
   },
 });

@@ -1,7 +1,13 @@
 import { OnEvent } from "@nestjs/event-emitter";
-import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { POST_STATISTICS } from "@src/modules/exchange/domain/events/postStatistics.event";
-import { Server } from "socket.io";
+import {
+  ConnectedSocket,
+  OnGatewayConnection,
+  WebSocketGateway,
+  WebSocketServer,
+} from "@nestjs/websockets";
+import { SOCKET_MATCH_CREATED } from "@src/modules/exchange/domain/events/matchCreated.event";
+import { WsAuthService } from "@src/modules/shared/socket/socketAuth.service";
+import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({
   path: "/v1/socket.io",
@@ -9,12 +15,18 @@ import { Server } from "socket.io";
     origin: "*",
   },
 })
-export class EventsGateway {
+export class EventsGateway implements OnGatewayConnection {
   @WebSocketServer()
   private server!: Server;
 
-  @OnEvent(POST_STATISTICS)
+  constructor(private readonly wsAuthService: WsAuthService) {}
+
+  handleConnection(@ConnectedSocket() client: Socket) {
+    this.wsAuthService.onClientConnect(client);
+  }
+
+  @OnEvent(SOCKET_MATCH_CREATED)
   handleUserCreatedEvent(event: unknown): void {
-    this.server.emit(POST_STATISTICS, event);
+    this.server.emit(SOCKET_MATCH_CREATED, event);
   }
 }

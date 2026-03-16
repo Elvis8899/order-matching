@@ -4,10 +4,19 @@ import { toast } from "sonner";
 import type { OrderSide } from "@/lib/types";
 
 const OrderForm = ({ side }: { side: OrderSide }) => {
-  const { submitOrder, fillForm, setFillForm } = useExchange();
+  const {
+    submitOrder,
+    fillFormBuy,
+    setFillFormBuy,
+    fillFormAsk,
+    setFillFormAsk,
+  } = useExchange();
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
 
+  const isBuy = side === "buy";
+  const fillForm = isBuy ? fillFormBuy : fillFormAsk;
+  const setFillForm = isBuy ? setFillFormBuy : setFillFormAsk;
   useEffect(() => {
     if (fillForm) {
       setPrice(fillForm.price.toString());
@@ -17,7 +26,6 @@ const OrderForm = ({ side }: { side: OrderSide }) => {
   }, [fillForm, setFillForm]);
 
   const total = (parseFloat(amount) || 0) * (parseFloat(price) || 0);
-  const isBuy = side === "buy";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

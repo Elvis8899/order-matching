@@ -7,16 +7,16 @@ const fmt = (n: number, d = 2) =>
   });
 
 const OrderBook = () => {
-  const { orderBook, setFillForm } = useExchange();
+  const { orderBook, setFillFormBuy, setFillFormAsk } = useExchange();
 
   const handleBidClick = (price: number, amount: number) => {
     // Clicking a bid fills the sell form
-    setFillForm({ price, amount });
+    setFillFormAsk({ price, amount });
   };
 
-  const handleAskClick = (price: number, volume: number) => {
+  const handleAskClick = (price: number, amount: number) => {
     // Clicking an ask fills the buy form
-    setFillForm({ price, amount: volume });
+    setFillFormBuy({ price, amount });
   };
 
   return (

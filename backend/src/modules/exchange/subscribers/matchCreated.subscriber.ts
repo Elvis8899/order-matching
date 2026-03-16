@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { QueryBus } from "@nestjs/cqrs";
 import { OnEvent } from "@nestjs/event-emitter";
-import { MATCH_CREATED } from "@src/modules/exchange/domain/events/matchCreated.event";
-import { POST_STATISTICS } from "@src/modules/exchange/domain/events/postStatistics.event";
+import {
+  MATCH_CREATED,
+  SOCKET_MATCH_CREATED,
+} from "@src/modules/exchange/domain/events/matchCreated.event";
 import { MatchStatistics } from "@src/modules/exchange/domain/match.entity";
 import { MatchStatisticsQuery } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.query";
 import { DomainEventPublisher } from "@src/modules/shared/domain-event-publisher/adapters/domainEventPublisher";
@@ -23,7 +25,7 @@ export class MatchCreatedSubscriber {
     >(new MatchStatisticsQuery());
     return executeTask(
       this.domainEventPublisher.publishEvent({
-        eventKey: POST_STATISTICS,
+        eventKey: SOCKET_MATCH_CREATED,
         payload: result,
       }),
     );

@@ -14,13 +14,13 @@ export class ExchangeService {
 
   static async getOrdersPaginated(userId?: string) {
     return http.get<PaginatedResponse<Order>>("orders", {
-      params: { page: 0, limit: 100, userId },
+      params: { page: 0, limit: 1000, userId },
     });
   }
 
   static async getMatchesPaginated(userId?: string) {
     return http.get<PaginatedResponse<Match>>("matches", {
-      params: { page: 0, limit: 100, userId },
+      params: { page: 0, limit: 1000, userId },
     });
   }
 
