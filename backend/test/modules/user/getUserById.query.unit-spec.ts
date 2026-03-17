@@ -3,6 +3,7 @@ import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.servi
 import { executeTask } from "@shared/utils/application/executeTask";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { UserBuilder } from "@test/data-builders/userBuilder";
+import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
 import { UserNotFoundException } from "@user/domain/user.errors";
@@ -51,7 +52,7 @@ describe("[Unit] List Users", () => {
 
   it("Shouldnt get user if id is invalid", async () => {
     //Given a valid query
-    const query = new GetUserByIdQuery("00000000-0000-0000-0001-000000000000");
+    const query = new GetUserByIdQuery(createTestId(TableNameEnum.User, 0));
 
     //With users in database
     const user = new UserBuilder(1).build();

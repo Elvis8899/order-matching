@@ -1,11 +1,9 @@
 import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
-import { bullQueueConfig } from "@src/modules/shared/queue/bull.config";
-import { QueueNames } from "@src/modules/shared/queue/queue.constants";
-// import { AppointmentProcessor } from "./processors/appointment.processor";
-// import { DlqProcessor } from "./processors/dlq.processor";
-// import { QueueNames } from "./queue.constants";
-// import { QueueService } from "./queue.service";
+import {
+  bullQueueConfig,
+  QueueNames,
+} from "@src/modules/shared/queue/queue.config";
 
 const queues = [
   BullModule.registerQueue({
@@ -20,8 +18,10 @@ const queues = [
   }),
 ];
 
+export const BullQueueModule = BullModule.forRootAsync(bullQueueConfig);
+
 @Module({
-  imports: [BullModule.forRootAsync(bullQueueConfig), ...queues],
+  imports: [BullQueueModule, ...queues],
   providers: [],
   exports: [...queues],
 })

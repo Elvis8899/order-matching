@@ -11,7 +11,7 @@ import { UserRepository } from "@user/database/user.repository.port";
 import { USER_UPDATED } from "@user/domain/events/userUpdated.event";
 import { User } from "@user/domain/user.entity";
 import {
-  userEmailAlreadyExistsException,
+  usernameAlreadyExistsException,
   userNotFoundException,
 } from "@user/domain/user.errors";
 import { CreateUserDto } from "@user/dtos/user.dto";
@@ -66,7 +66,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, void> {
             FPF.flow(
               O.filter((u) => u.id !== user.id),
               O.fromPredicate(O.isNone),
-              RTE.fromOption(userEmailAlreadyExistsException),
+              RTE.fromOption(usernameAlreadyExistsException),
             ),
           ),
         ),

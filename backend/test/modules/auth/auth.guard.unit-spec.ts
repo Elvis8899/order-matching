@@ -3,7 +3,6 @@ import { AuthGuard } from "@auth/guards/auth.guard";
 import { ExecutionContext, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
-import { UserRoleEnum } from "@user/domain/user.entity";
 import { unsafeCoerce } from "fp-ts/lib/function";
 
 describe("AuthGuard", () => {
@@ -34,7 +33,7 @@ describe("AuthGuard", () => {
   describe("canActivate", () => {
     // Mock the ExecutionContext (request object is key)
     const defaultInput = {
-      user: { email: "admin@admin.com", role: UserRoleEnum.Admin },
+      user: { username: "admin" },
       headers: { authorization: "Bearer token" },
     };
     it("should return true if the token is valid", async () => {

@@ -1,5 +1,13 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 
+export enum QueueNames {
+  ORDER_QUEUE = "order-queue",
+}
+
+export const JobNames = {
+  NEW_ORDER: "new-order",
+};
+
 export const bullQueueConfig = {
   imports: [ConfigModule],
   inject: [ConfigService],

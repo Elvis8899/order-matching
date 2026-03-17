@@ -5,10 +5,7 @@ import {
   ORDER_CREATED,
   OrderCreatedEvent,
 } from "@src/modules/exchange/domain/events/orderCreated.event";
-import {
-  JobNames,
-  QueueNames,
-} from "@src/modules/shared/queue/queue.constants";
+import { JobNames, QueueNames } from "@src/modules/shared/queue/queue.config";
 import { Queue } from "bullmq";
 
 @Injectable()

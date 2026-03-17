@@ -15,3 +15,11 @@ export class OrderNotFoundException extends NotFoundException {
 }
 
 export const orderNotFoundException = () => new OrderNotFoundException();
+
+export class InsufficientWalletFundsException extends NotFoundException {
+  constructor() {
+    super("Saldo insuficiente.");
+  }
+}
+export const insufficientWalletFundsException = () =>
+  new InsufficientWalletFundsException();

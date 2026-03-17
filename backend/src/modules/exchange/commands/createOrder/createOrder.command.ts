@@ -8,6 +8,7 @@ import { performRTE } from "@shared/utils/application/perform";
 import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
 import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
 import { ORDER_CREATED } from "@src/modules/exchange/domain/events/orderCreated.event";
+import { insufficientWalletFundsException } from "@src/modules/exchange/domain/exchange.errors";
 import {
   Order,
   OrderSideEnum,
@@ -17,10 +18,7 @@ import { CreateOrderDto } from "@src/modules/exchange/dtos/order.dto";
 import { RealUUIDGeneratorService } from "@src/modules/shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { UUID } from "@src/modules/shared/uuid/entities/uuid";
 import { UserRepository } from "@src/modules/user/database/user.repository.port";
-import {
-  insufficientWalletFundsException,
-  userNotFoundException,
-} from "@src/modules/user/domain/user.errors";
+import { userNotFoundException } from "@src/modules/user/domain/user.errors";
 import { PinoLogger } from "nestjs-pino";
 
 export class CreateOrder implements ICommand {

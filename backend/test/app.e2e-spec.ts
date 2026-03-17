@@ -1,5 +1,6 @@
 import { HttpStatus } from "@nestjs/common";
 import { E2EModule } from "@test/util/defaultModule.e2e";
+import * as request from "supertest";
 
 describe("AppController (e2e)", () => {
   const testModule = new E2EModule(() => ({}));
@@ -13,8 +14,7 @@ describe("AppController (e2e)", () => {
   });
 
   it("/check (GET)", () => {
-    return testModule
-      .request()
+    return request(testModule.app.getHttpServer())
       .get("/check/status")
       .expect(HttpStatus.OK)
       .expect("ok");

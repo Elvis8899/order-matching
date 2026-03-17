@@ -12,7 +12,7 @@ import {
 } from "@user/commands/createUser/createUser.command";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
-import { UserCPFAlreadyExistsException } from "@user/domain/user.errors";
+import { UsernameAlreadyExistsException } from "@user/domain/user.errors";
 import { PinoLogger } from "nestjs-pino";
 
 //Adapters
@@ -107,7 +107,7 @@ describe("[Unit] Create User", () => {
     const userCopy = new UserBuilder().withUsername(username).buildCreateDTO();
     const resultPromise = createUserHandler.execute(new CreateUser(userCopy));
     await expect(resultPromise).rejects.toBeInstanceOf(
-      UserCPFAlreadyExistsException,
+      UsernameAlreadyExistsException,
     );
   });
 });

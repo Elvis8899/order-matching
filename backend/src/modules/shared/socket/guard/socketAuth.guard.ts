@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { RequestJWTPayload } from "@src/modules/auth/domain/login.entity";
-import { WsAuthService } from "@src/modules/shared/socket/socketAuth.service";
+import { WsAuthService } from "@src/modules/shared/socket/adapter/socketAuth.service";
 import { Socket } from "socket.io";
 
 @Injectable()

@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { SOCKET_MATCH_CREATED } from "@src/modules/exchange/domain/events/matchCreated.event";
-import { WsAuthService } from "@src/modules/shared/socket/socketAuth.service";
+import { WsAuthService } from "@src/modules/shared/socket/adapter/socketAuth.service";
 import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({

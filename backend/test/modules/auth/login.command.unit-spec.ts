@@ -2,7 +2,7 @@ import {
   LoginCommand,
   LoginCommandHandler,
 } from "@auth/commands/login/login.command";
-import { WrongAuthException } from "@auth/domain/auth.errors";
+import { UnprocessableEntityException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
@@ -59,10 +59,12 @@ describe("[Unit] Create User", () => {
   it("Should not login a user if username is invalid", async () => {
     //Given a potentially invalid name
     const user = new UserBuilder().withUsername("").buildCreateDTO();
-    //When we create a user
+    //When we login a user
     const resultPromise = loginCommandHandler.execute(new LoginCommand(user));
 
     //Then it should have thrown an error and not have created a user
-    await expect(resultPromise).rejects.toBeInstanceOf(WrongAuthException);
+    await expect(resultPromise).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    );
   });
 });

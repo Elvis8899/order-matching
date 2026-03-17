@@ -1,7 +1,6 @@
 import { RequestJWTPayload } from "@auth/domain/login.entity";
 import { ExecutionContext } from "@nestjs/common";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
-import { UserRoleEnum } from "@user/domain/user.entity";
 
 type AuthGuardMock = {
   canActivate: (context: ExecutionContext) => boolean;
@@ -9,8 +8,7 @@ type AuthGuardMock = {
 
 export class MockAuthGuardBuilder {
   private sub = createTestId(TableNameEnum.User, 1);
-  private email = "admin@admin.com";
-  private role = UserRoleEnum.Admin;
+  private username = "admin@admin.com";
   private iat = 0;
   private exp = 0;
   private aud = "";
@@ -23,8 +21,7 @@ export class MockAuthGuardBuilder {
     this.sub = createTestId(TableNameEnum.User, index);
     this.defaultProperties = {
       sub: this.sub,
-      email: this.email,
-      role: this.role,
+      username: this.username,
       iat: this.iat,
       exp: this.exp,
       aud: this.aud,
@@ -44,11 +41,6 @@ export class MockAuthGuardBuilder {
 
   withSub(sub: string) {
     this.overrides.sub = sub;
-    return this;
-  }
-
-  withRole(role: UserRoleEnum) {
-    this.overrides.role = role;
     return this;
   }
 
