@@ -1,4 +1,4 @@
-import { E, TE } from "@shared/utils/application/monads";
+import { Apply, E, FPF, TE } from "@shared/utils/application/monads";
 
 /**
  * Given a taskEither, execute the task, await the result and return a promise.
@@ -13,3 +13,8 @@ export const executeTask = <E, A>(task: TE.TaskEither<E, A>): Promise<A> =>
       E.fold(reject, resolve)(result);
     })().catch(reject);
   });
+
+export const executeTasks = FPF.flow(
+  Apply.sequenceT(TE.ApplicativePar),
+  executeTask,
+);

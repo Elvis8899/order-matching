@@ -8,7 +8,7 @@ export class MatchBuilder extends BuilderPort<z.input<typeof Match>> {
   protected override defaultProperties = {
     id: UUID.parse(createTestId(TableNameEnum.Match, 0)),
     price: 100,
-    volume: 1,
+    volume: 100,
     buyOrderId: UUID.parse(createTestId(TableNameEnum.Order, 0)),
     sellOrderId: UUID.parse(createTestId(TableNameEnum.Order, 1)),
     buyUserId: UUID.parse(createTestId(TableNameEnum.User, 0)),

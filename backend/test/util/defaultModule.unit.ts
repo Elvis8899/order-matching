@@ -1,8 +1,4 @@
-import { Module } from "@nestjs/common";
 import { TestingModule, TestingModuleBuilder } from "@nestjs/testing";
-
-@Module({})
-export class EmptyModule {}
 
 export class UnitModule<U extends object> {
   /** Instances of either injectable or controller */
