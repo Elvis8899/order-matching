@@ -1,36 +1,25 @@
 import { FPF } from "@shared/utils/application/monads";
 import { UUID } from "@shared/uuid/entities/uuid";
+import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { User } from "@user/domain/user.entity";
 import { CreateUserDto } from "@user/dtos/user.dto";
 import { z } from "zod";
 
-export class UserBuilder {
-  private id = UUID.parse(createTestId(TableNameEnum.User, 0));
-
-  private username = "usuario 1";
-  private defaultProperties: z.input<typeof User>;
-  private overrides: z.input<typeof User>;
-
+export class UserBuilder extends BuilderPort<z.input<typeof User>> {
+  protected override defaultProperties = {
+    id: UUID.parse(createTestId(TableNameEnum.User, 0)),
+    username: "usuario 1",
+  };
   constructor(index?: number) {
+    super();
     if (index) {
-      this.username = "usuario " + index.toString();
-      this.id = createTestId(TableNameEnum.User, index);
+      this.defaultProperties.id = createTestId(TableNameEnum.User, index);
+      this.defaultProperties.username = "usuario " + index.toString();
     }
-    this.defaultProperties = {
-      id: this.id,
-      username: this.username,
-    };
     this.overrides = {
       ...this.defaultProperties,
     };
-  }
-
-  reset() {
-    this.overrides = {
-      ...this.defaultProperties,
-    };
-    return this;
   }
 
   withId(id: string) {
@@ -49,6 +38,7 @@ export class UserBuilder {
       ...this.overrides,
     });
   }
+
   buildCreateDTO(): CreateUserDto {
     const user = {
       ...this.defaultProperties,

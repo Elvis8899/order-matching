@@ -19,7 +19,7 @@ import {
 } from "@nestjs/swagger";
 import { noop } from "@shared/utils/application/noop";
 import { AuthenticatedRequest } from "@src/modules/auth/domain/login.entity";
-import { CancelOrder } from "@src/modules/exchange/commands/deleteOrder/cancelOrder.command";
+import { CancelOrder } from "@src/modules/exchange/commands/cancelOrder/cancelOrder.command";
 
 @Controller("v1/")
 @ApiBearerAuth()

@@ -1,16 +1,16 @@
 export enum TableNameEnum {
   User = "User",
-  BookInfo = "BookInfo",
-  BookItem = "BookItem",
-  BookRentalDetails = "BookRentalDetails",
+  Wallet = "Wallet",
+  Order = "Order",
+  Match = "Match",
   None = "None",
 }
 
 export const defaultIdPrefixEnum: Record<TableNameEnum, string> = {
   [TableNameEnum.User]: "00000000-0000-0000-0001-",
-  [TableNameEnum.BookInfo]: "00000000-0000-0000-0002-",
-  [TableNameEnum.BookItem]: "00000000-0000-0000-0003-",
-  [TableNameEnum.BookRentalDetails]: "00000000-0000-0000-0004-",
+  [TableNameEnum.Wallet]: "00000000-0000-0000-0001-",
+  [TableNameEnum.Order]: "00000000-0000-0000-0002-",
+  [TableNameEnum.Match]: "00000000-0000-0000-0003-",
   [TableNameEnum.None]: "99999999-0000-0000-0000-",
 };
 

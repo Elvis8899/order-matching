@@ -1,42 +1,29 @@
 import { RequestJWTPayload } from "@auth/domain/login.entity";
 import { ExecutionContext } from "@nestjs/common";
+import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 
 type AuthGuardMock = {
   canActivate: (context: ExecutionContext) => boolean;
 };
 
-export class MockAuthGuardBuilder {
-  private sub = createTestId(TableNameEnum.User, 1);
-  private username = "admin@admin.com";
-  private iat = 0;
-  private exp = 0;
-  private aud = "";
-  private iss = "";
-
-  private defaultProperties: RequestJWTPayload;
-  private overrides: RequestJWTPayload;
+export class MockAuthGuardBuilder extends BuilderPort<RequestJWTPayload> {
+  protected override defaultProperties = {
+    sub: createTestId(TableNameEnum.User, 1),
+    username: "admin@admin.com",
+    iat: 0,
+    exp: 0,
+    aud: "",
+    iss: "",
+  };
 
   constructor(index = 1) {
-    this.sub = createTestId(TableNameEnum.User, index);
-    this.defaultProperties = {
-      sub: this.sub,
-      username: this.username,
-      iat: this.iat,
-      exp: this.exp,
-      aud: this.aud,
-      iss: this.iss,
-    };
-    this.overrides = {
-      ...this.defaultProperties,
-    };
-  }
+    super();
+    this.defaultProperties.sub = createTestId(TableNameEnum.User, index);
 
-  reset() {
     this.overrides = {
       ...this.defaultProperties,
     };
-    return this;
   }
 
   withSub(sub: string) {
@@ -49,6 +36,7 @@ export class MockAuthGuardBuilder {
       canActivate: this.canActivate.bind(this),
     };
   }
+
   private canActivate(context: ExecutionContext): boolean {
     const request = context
       .switchToHttp()

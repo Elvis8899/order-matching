@@ -1,11 +1,11 @@
 import { Module, Provider } from "@nestjs/common";
 import { CqrsModule } from "@nestjs/cqrs";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
+import { CancelOrderHandler } from "@src/modules/exchange/commands/cancelOrder/cancelOrder.command";
+import { CancelOrderController } from "@src/modules/exchange/commands/cancelOrder/cancelOrder.controller";
 import { CreateOrderHandler } from "@src/modules/exchange/commands/createOrder/createOrder.command";
 import { CreateOrderController } from "@src/modules/exchange/commands/createOrder/createOrder.controller";
 import { CreateWalletHandler } from "@src/modules/exchange/commands/createWallet/createWallet.command";
-import { CancelOrderHandler } from "@src/modules/exchange/commands/deleteOrder/cancelOrder.command";
-import { CancelOrderController } from "@src/modules/exchange/commands/deleteOrder/cancelOrder.controller";
 import { FindMatchHandler } from "@src/modules/exchange/commands/findMatch/findMatch.command";
 import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
 import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";

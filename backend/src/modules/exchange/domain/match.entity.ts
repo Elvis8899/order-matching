@@ -2,6 +2,9 @@ import { BaseDateEntity } from "@shared/utils/domain/dateEntity.base";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { z } from "zod";
 
+export const MATCH_MAKER_FEE = 0.005; // 0.5%
+export const MATCH_TAKER_FEE = 0.003; // 0.3%
+
 export const Match = z
   .object({
     id: UUID,

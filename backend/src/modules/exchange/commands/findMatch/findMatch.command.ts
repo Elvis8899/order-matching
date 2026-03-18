@@ -11,7 +11,11 @@ import {
 import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
 import { MATCH_CREATED } from "@src/modules/exchange/domain/events/matchCreated.event";
 import { orderNotFoundException } from "@src/modules/exchange/domain/exchange.errors";
-import { Match } from "@src/modules/exchange/domain/match.entity";
+import {
+  Match,
+  MATCH_MAKER_FEE,
+  MATCH_TAKER_FEE,
+} from "@src/modules/exchange/domain/match.entity";
 import {
   Order,
   OrderSideEnum,
@@ -21,11 +25,8 @@ import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
 import { fromInputRE } from "@src/modules/shared/utils/application/fromInput";
 import { noop } from "@src/modules/shared/utils/application/noop";
 import { RealUUIDGeneratorService } from "@src/modules/shared/uuid/adapters/secondaries/realUUIDGenerator.service";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
 import { PinoLogger } from "nestjs-pino";
 
-const MAKER_FEE = 0.005; // 0.5%
-const TAKER_FEE = 0.003; // 0.3%
 type PartialMatch = Omit<Match, "id" | "createdAt" | "updatedAt">;
 type PartialWallet = Omit<Wallet, "createdAt" | "updatedAt">;
 export class FindMatch implements ICommand {
@@ -36,7 +37,6 @@ export class FindMatch implements ICommand {
 export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
   constructor(
     private readonly uuidGeneratorService: RealUUIDGeneratorService,
-    private readonly userRepository: UserRepository,
     private readonly orderRepository: OrderRepository,
     private readonly walletRepository: WalletRepository,
     private readonly matchRepository: MatchRepository,
@@ -54,6 +54,7 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
         side: isBuy ? OrderSideEnum.Sell : OrderSideEnum.Buy,
         minPrice: isBuy ? undefined : order.price,
         maxPrice: isBuy ? order.price : undefined,
+        maxDate: order.createdAt,
       },
     };
   }
@@ -77,8 +78,13 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
         wallets.push(wallet);
         return;
       }
-      existingWallet.btc += wallet.btc || 0;
-      existingWallet.usd += wallet.usd || 0;
+      existingWallet.btc += wallet.btc;
+      existingWallet.usd += wallet.usd;
+    };
+    const getNewStatus = (amount: number, filled: number) => {
+      return filled === amount
+        ? OrderStatusEnum.Complete
+        : OrderStatusEnum.Active;
     };
     for (const match of matchingOrders.sort((a, b) =>
       isBuy ? b.price - a.price : a.price - b.price,
@@ -90,12 +96,12 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
       manageWallet({
         id: order.userId,
         btc: isBuy ? amount : 0,
-        usd: (isBuy ? 0 : volume) - TAKER_FEE * volume,
+        usd: (isBuy ? 0 : volume) - MATCH_TAKER_FEE * volume,
       });
       manageWallet({
         id: match.userId,
         btc: isBuy ? 0 : amount,
-        usd: (isBuy ? volume : 0) - MAKER_FEE * volume,
+        usd: (isBuy ? volume : 0) - MATCH_MAKER_FEE * volume,
       });
       matches.push({
         price: price,
@@ -109,10 +115,7 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
       orders.push({
         ...match,
         filled,
-        status:
-          filled === match.amount
-            ? OrderStatusEnum.Complete
-            : OrderStatusEnum.Active,
+        status: getNewStatus(match.amount, filled),
       });
       if (amountRemaining <= 0) {
         break;
@@ -122,10 +125,7 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
     orders.push({
       ...order,
       filled,
-      status:
-        filled === order.amount
-          ? OrderStatusEnum.Complete
-          : OrderStatusEnum.Active,
+      status: getNewStatus(order.amount, filled),
     });
     return { wallets, matches, orders };
   }

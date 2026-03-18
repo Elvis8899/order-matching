@@ -10,6 +10,7 @@ import {
   OrderSideEnum,
   OrderStatusEnum,
 } from "@src/modules/exchange/domain/order.entity";
+import { DateType } from "@src/modules/shared/utils/domain/DateType";
 import { UUID } from "@src/modules/shared/uuid/entities/uuid";
 import z from "zod";
 
@@ -19,6 +20,7 @@ export const OrderFindQuery = z.object({
   maxPrice: z.number().optional(),
   status: z.enum(OrderStatusEnum).optional(),
   side: z.enum(OrderSideEnum).optional(),
+  maxDate: DateType.optional(),
 });
 export type OrderFindQuery = z.infer<typeof OrderFindQuery>;
 

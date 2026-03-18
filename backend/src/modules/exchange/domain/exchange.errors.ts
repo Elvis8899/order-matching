@@ -1,4 +1,13 @@
-import { NotFoundException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
+
+export class WalletAlreadyExistsException extends ConflictException {
+  constructor() {
+    super("Carteira não encontrada.");
+  }
+}
+
+export const walletAlreadyExistsException = () =>
+  new WalletAlreadyExistsException();
 
 export class WalletNotFoundException extends NotFoundException {
   constructor() {

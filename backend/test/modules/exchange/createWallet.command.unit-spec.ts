@@ -1,0 +1,96 @@
+import { Test } from "@nestjs/testing";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
+import {
+  CreateWallet,
+  CreateWalletHandler,
+} from "@src/modules/exchange/commands/createWallet/createWallet.command";
+import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
+import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
+import { WalletAlreadyExistsException } from "@src/modules/exchange/domain/exchange.errors";
+import { FakeUserRepository } from "@src/modules/user/database/fakeUser.repository";
+import { UserRepository } from "@src/modules/user/database/user.repository.port";
+import { UserBuilder } from "@test/data-builders/userBuilder";
+import { WalletBuilder } from "@test/data-builders/walletBuilder";
+import { UnitModule } from "@test/util/defaultModule.unit";
+import { TestHelper } from "@test/util/testHelper";
+
+//Adapters
+
+describe("[Unit] Create Wallet", () => {
+  const modRef = new UnitModule(
+    Test.createTestingModule({
+      imports: [DomainEventPublisherModule],
+      providers: [
+        ...TestHelper.unitDefaultProviders,
+        CreateWalletHandler,
+        { provide: UserRepository, useClass: FakeUserRepository },
+        { provide: WalletRepository, useClass: FakeWalletRepository },
+      ],
+    }),
+    (ref) => ({
+      walletRepository: ref.get(WalletRepository),
+      userRepository: ref.get(UserRepository),
+      createWalletHandler: ref.get(CreateWalletHandler),
+      eventPublisher: ref.get(DomainEventPublisher),
+    }),
+  );
+
+  const defaultUser = new UserBuilder().build();
+  beforeEach(async () => {
+    await modRef.init();
+
+    await executeTask(modRef.r.userRepository.save(defaultUser));
+  });
+
+  it("Should create wallet if wallet is valid", async () => {
+    // Given a potentially valid wallet
+    const wallet = new WalletBuilder().buildCreateDTO();
+
+    // When we create a wallet
+    const resultPromise = modRef.r.createWalletHandler.execute(
+      new CreateWallet(wallet),
+    );
+
+    // Then it should have created a wallet
+    await expect(resultPromise).resolves.toEqual(undefined);
+
+    const wallets = await executeTask(modRef.r.walletRepository.findAll());
+    expect(wallets.length).toEqual(1);
+  });
+
+  it("Should emit domain event when wallet is created", async () => {
+    //Given a potentially valid name
+
+    const spy = jest.spyOn(modRef.r.eventPublisher, "publishEvent");
+
+    const wallet = new WalletBuilder().buildCreateDTO();
+    //When we create a wallet
+    await modRef.r.createWalletHandler.execute(new CreateWallet(wallet));
+
+    //Then it should have created a wallet and emitted an event
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("Should not create wallet if wallet already exists", async () => {
+    // Given a potentially valid wallet
+    const walletBuilder = new WalletBuilder();
+    const wallet = walletBuilder.buildCreateDTO();
+    // And an existing wallet in database
+    await executeTask(modRef.r.walletRepository.save(walletBuilder.build()));
+
+    // When we create a wallet
+    const resultPromise = modRef.r.createWalletHandler.execute(
+      new CreateWallet(wallet),
+    );
+
+    // Then it should have created a wallet
+    await expect(resultPromise).rejects.toBeInstanceOf(
+      WalletAlreadyExistsException,
+    );
+
+    const wallets = await executeTask(modRef.r.walletRepository.findAll());
+    expect(wallets.length).toEqual(1);
+  });
+});

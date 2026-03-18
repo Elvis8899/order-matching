@@ -5,7 +5,6 @@ import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, O, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
-import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
 import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
@@ -29,7 +28,6 @@ export class CancelOrder implements ICommand {
 @CommandHandler(CancelOrder)
 export class CancelOrderHandler implements ICommandHandler<CancelOrder, void> {
   constructor(
-    private readonly uuidGeneratorService: RealUUIDGeneratorService,
     private readonly orderRepository: OrderRepository,
     private readonly domainEventPublisher: DomainEventPublisher,
     private readonly walletRepository: WalletRepository,

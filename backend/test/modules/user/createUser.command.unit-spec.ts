@@ -1,45 +1,39 @@
+import { comparePassword } from "@auth/util/password";
 import { UnprocessableEntityException } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
-import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
+import { UnitModule } from "@test/util/defaultModule.unit";
 import {
   CreateUser,
   CreateUserHandler,
 } from "@user/commands/createUser/createUser.command";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
+import { UserRoleEnum } from "@user/domain/user.entity";
 import { UsernameAlreadyExistsException } from "@user/domain/user.errors";
-import { PinoLogger } from "nestjs-pino";
 
 //Adapters
-let userRepository: UserRepository;
-let eventUser: DomainEventPublisher;
 
 describe("[Unit] Create User", () => {
-  let createUserHandler: CreateUserHandler;
-
-  beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
+  const moduleRef = new UnitModule(
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        {
-          provide: DomainEventPublisherModule,
-          useClass: DomainEventPublisher,
-        },
+        ...UnitModule.unitDefaultProviders,
         CreateUserHandler,
-        RealUUIDGeneratorService,
         { provide: UserRepository, useClass: FakeUserRepository },
-        { provide: PinoLogger, useClass: FakeLoggerService },
       ],
-    }).compile();
-
-    userRepository = moduleRef.get<UserRepository>(UserRepository);
-    createUserHandler = moduleRef.get<CreateUserHandler>(CreateUserHandler);
-    eventUser = moduleRef.get<DomainEventPublisher>(DomainEventPublisher);
+    },
+    (app) => ({
+      userRepository: app.get(UserRepository),
+      createUserHandler: app.get(CreateUserHandler),
+      eventPublisher: app.get(DomainEventPublisher),
+    }),
+  );
+  beforeEach(async () => {
+    await moduleRef.init();
   });
 
   it("Should create user if user is valid", async () => {
@@ -47,12 +41,14 @@ describe("[Unit] Create User", () => {
     const user = new UserBuilder().buildCreateDTO();
 
     //When we create a user
-    const resultPromise = createUserHandler.execute(new CreateUser(user));
+    const resultPromise = moduleRef.r.createUserHandler.execute(
+      new CreateUser(user),
+    );
 
     //Then it should have created a user
     await expect(resultPromise).resolves.toEqual(undefined);
 
-    const users = await executeTask(userRepository.findAll());
+    const users = await executeTask(moduleRef.r.userRepository.findAll());
     expect(users.length).toEqual(1);
   });
 
@@ -61,23 +57,25 @@ describe("[Unit] Create User", () => {
 
     const user = new UserBuilder().buildCreateDTO();
     //When we create a user
-    const resultPromise = createUserHandler.execute(new CreateUser(user));
+    const resultPromise = moduleRef.r.createUserHandler.execute(
+      new CreateUser(user),
+    );
 
     //Then it should have created a user
     await expect(resultPromise).resolves.toEqual(undefined);
 
-    const users = await executeTask(userRepository.findAll());
+    const users = await executeTask(moduleRef.r.userRepository.findAll());
     expect(users.length).toEqual(1);
   });
 
   it("Should emit domain event when user is created", async () => {
     //Given a potentially valid name
 
-    const spy = jest.spyOn(eventUser, "publishEvent");
+    const spy = jest.spyOn(moduleRef.r.eventPublisher, "publishEvent");
 
     const user = new UserBuilder().buildCreateDTO();
     //When we create a user
-    await createUserHandler.execute(new CreateUser(user));
+    await moduleRef.r.createUserHandler.execute(new CreateUser(user));
 
     //Then it should have created a user and emitted an event
     expect(spy).toHaveBeenCalledTimes(1);
@@ -87,14 +85,16 @@ describe("[Unit] Create User", () => {
     //Given a potentially invalid name
     const user = new UserBuilder().withUsername("").buildCreateDTO();
     //When we create a user
-    const resultPromise = createUserHandler.execute(new CreateUser(user));
+    const resultPromise = moduleRef.r.createUserHandler.execute(
+      new CreateUser(user),
+    );
 
     //Then it should have thrown an error and not have created a user
     await expect(resultPromise).rejects.toBeInstanceOf(
       UnprocessableEntityException,
     );
 
-    const users = await executeTask(userRepository.findAll());
+    const users = await executeTask(moduleRef.r.userRepository.findAll());
     expect(users.length).toEqual(0);
   });
 
@@ -103,11 +103,65 @@ describe("[Unit] Create User", () => {
     const user = new UserBuilder().buildCreateDTO();
     const username = user.username;
     //When we create two users with the same name
-    await createUserHandler.execute(new CreateUser(user));
+    await moduleRef.r.createUserHandler.execute(new CreateUser(user));
     const userCopy = new UserBuilder().withUsername(username).buildCreateDTO();
-    const resultPromise = createUserHandler.execute(new CreateUser(userCopy));
+    const resultPromise = moduleRef.r.createUserHandler.execute(
+      new CreateUser(userCopy),
+    );
     await expect(resultPromise).rejects.toBeInstanceOf(
       UsernameAlreadyExistsException,
     );
+  });
+
+  it("Should store a hash of the password", async () => {
+    //Given a potentially valid user
+    const user = new UserBuilder().buildCreateDTO();
+
+    //When we create it
+    await moduleRef.r.createUserHandler.execute(new CreateUser(user));
+
+    //Then the stored password is a hash of the given one
+    const [stored] = await executeTask(moduleRef.r.userRepository.findAll());
+    expect(stored?.password).not.toBe(user.password);
+    expect(await comparePassword(user.password, stored?.password ?? "")).toBe(
+      true,
+    );
+  });
+
+  it("Should create a client even when asked for another role", async () => {
+    //Given a user asking to be an admin
+    const user = new UserBuilder()
+      .withRole(UserRoleEnum.Admin)
+      .buildCreateDTO();
+
+    //When we create it
+    await moduleRef.r.createUserHandler.execute(new CreateUser(user));
+
+    //Then it is a client
+    const [stored] = await executeTask(moduleRef.r.userRepository.findAll());
+    expect(stored?.role).toBe(UserRoleEnum.Client);
+  });
+
+  it.each([
+    ["too short", "1234567"],
+    ["too long", "a".repeat(73)],
+    ["missing", undefined],
+  ])("Should not create a user if the password is %s", async (_, password) => {
+    //Given a user with an invalid password
+    const user = new UserBuilder()
+      .withPassword(password as string)
+      .buildCreateDTO();
+
+    //When we create it
+    const resultPromise = moduleRef.r.createUserHandler.execute(
+      new CreateUser(user),
+    );
+
+    //Then it is rejected
+    await expect(resultPromise).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    );
+    const users = await executeTask(moduleRef.r.userRepository.findAll());
+    expect(users.length).toEqual(0);
   });
 });

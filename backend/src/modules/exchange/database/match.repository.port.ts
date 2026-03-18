@@ -8,12 +8,13 @@ import {
   Match,
   MatchStatistics,
 } from "@src/modules/exchange/domain/match.entity";
+import { DateType } from "@src/modules/shared/utils/domain/DateType";
 import { UUID } from "@src/modules/shared/uuid/entities/uuid";
 import z from "zod";
 
 export const MatchFindQuery = z.object({
   userId: UUID.optional(),
-  minDate: z.number().optional(),
+  minDate: DateType.optional(),
 });
 export type MatchFindQuery = z.infer<typeof MatchFindQuery>;
 

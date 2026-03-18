@@ -10,6 +10,7 @@ import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domai
 import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
+import { WrongAuthException } from "@src/modules/auth/domain/auth.errors";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
@@ -47,13 +48,26 @@ describe("[Unit] Create User", () => {
     const user = new UserBuilder();
     await executeTask(userRepository.save(user.build()));
 
-    //When we create a user
+    //When we login the user
     const result = await loginCommandHandler.execute(
       new LoginCommand(user.buildCreateDTO()),
     );
 
     //Then it should have logged the user
     expect(result.accessToken).toBeTruthy();
+  });
+
+  it("Should not login user if user is valid but not in db", async () => {
+    //Given a potentially valid user
+    const user = new UserBuilder();
+
+    //When we try to login the user
+    const resultPromise = loginCommandHandler.execute(
+      new LoginCommand(user.buildCreateDTO()),
+    );
+
+    //Then it should have logged the user
+    await expect(resultPromise).rejects.toBeInstanceOf(WrongAuthException);
   });
 
   it("Should not login a user if username is invalid", async () => {
