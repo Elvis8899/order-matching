@@ -1,9 +1,9 @@
 #estágio de compilação a
-FROM node:20-slim as prepare
+FROM node:20-slim
 WORKDIR /usr/src/app
 COPY ../package*.json ./
 RUN yarn install
-COPY .. .
+# COPY .. .
 
 EXPOSE 3000
 

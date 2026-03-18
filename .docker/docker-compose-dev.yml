@@ -1,6 +1,4 @@
-version: "3.9"
 name: "exchange-dev"
-
 services:
   nginx:
     image: nginx:latest
@@ -23,8 +21,8 @@ services:
       context: ../backend
       dockerfile: ../.docker/Dockerfile.backend.dev
     env_file: ../backend/.env.dev
-    container_name: exchange-api-dev
-    image: exchange-api
+    container_name: exchange-dev-api
+    image: elvis/exchange-api:latest
     # Uncomment this line in case you are in M1
     # platform: linux/amd64
     volumes:
@@ -36,6 +34,28 @@ services:
       - "exchange_dev_network"
     depends_on:
       - postgres
+
+  # app-jest:
+  #   build:
+  #     context: ../backend
+  #     dockerfile: ../.docker/Dockerfile.backend.dev
+  #   env_file: ../backend/.env.dev
+  #   container_name: exchange-dev-api-jest
+  #   image: elvis/exchange-api:latest
+  #   # Uncomment this line in case you are in M1
+  #   # platform: linux/amd64
+  #   volumes:
+  #     - ../backend/:/usr/src/app
+  #     - ./util:/usr/src/app/.docker/util
+  #   # ports:
+  #   #   - "3000:3000"
+  #   networks:
+  #     - "exchange_dev_network"
+  #   depends_on:
+  #     - postgres
+
+  #   entrypoint: ''
+  #   command: ['yarn', 'test:watchAll']
 
   postgres:
     container_name: postgres-container-dev
@@ -57,8 +77,8 @@ services:
       dockerfile: ../.docker/Dockerfile.frontend.dev
       args:
         - NODE_ENV=development
-    container_name: exchange-frontend-dev
-    image: exchange-frontend-dev
+    container_name: exchange-dev-frontend
+    image: elvis/exchange-frontend:latest
     volumes:
       - ../frontend/:/usr/src/app
     command: yarn dev --host 0.0.0.0

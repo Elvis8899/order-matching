@@ -6,7 +6,7 @@ import { QueueNames } from "@src/modules/shared/queue/queue.config";
 import { Job } from "bullmq";
 import { PinoLogger } from "nestjs-pino";
 
-@Processor(QueueNames.ORDER_QUEUE)
+@Processor(QueueNames.ORDER_QUEUE, { concurrency: 1 })
 @Injectable()
 export class OrderCreatedProcessor extends WorkerHost {
   constructor(
