@@ -2,7 +2,7 @@ name: "exchange-dev"
 services:
   nginx:
     image: nginx:latest
-    restart: always
+    # restart: always
     ports:
       - "3000:80"
     volumes:

@@ -1,4 +1,8 @@
-import { TestingModule, TestingModuleBuilder } from "@nestjs/testing";
+import { ModuleMetadata, Provider } from "@nestjs/common";
+import { Test, TestingModule, TestingModuleBuilder } from "@nestjs/testing";
+import { FakeLoggerService } from "@src/modules/shared/logger/adapters/fake/FakeLogger.service";
+import { RealUUIDGeneratorService } from "@src/modules/shared/uuid/adapters/secondaries/realUUIDGenerator.service";
+import { PinoLogger } from "nestjs-pino";
 
 export class UnitModule<U extends object> {
   /** Instances of either injectable or controller */
@@ -8,13 +12,19 @@ export class UnitModule<U extends object> {
   builder!: TestingModuleBuilder;
   testingModule!: TestingModule;
 
-  constructor(builder: TestingModuleBuilder, fn: (app: TestingModule) => U) {
-    this.builder = builder;
+  constructor(metadata: ModuleMetadata, fn: (app: TestingModule) => U) {
+    this.builder = Test.createTestingModule(metadata);
     this.repositoryLoader = fn;
   }
 
   async init() {
     this.testingModule = await this.builder.compile();
+    await this.testingModule.init();
     this.r = this.repositoryLoader(this.testingModule);
   }
+
+  static unitDefaultProviders: Provider[] = [
+    RealUUIDGeneratorService,
+    { provide: PinoLogger, useClass: FakeLoggerService },
+  ];
 }

@@ -9,7 +9,7 @@ import { JobNames, QueueNames } from "@src/modules/shared/queue/queue.config";
 import { Queue } from "bullmq";
 
 @Injectable()
-export class OrderCreatedSubscriber {
+export class CreateOrderSubscriber {
   constructor(
     @InjectQueue(QueueNames.ORDER_QUEUE)
     private readonly orderQueue: Queue,

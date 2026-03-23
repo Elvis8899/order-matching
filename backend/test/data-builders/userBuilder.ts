@@ -9,7 +9,7 @@ import { z } from "zod";
 export class UserBuilder extends BuilderPort<z.input<typeof User>> {
   protected override defaultProperties = {
     id: UUID.parse(createTestId(TableNameEnum.User, 0)),
-    username: "usuario 1",
+    username: "usuario 0",
   };
   constructor(index?: number) {
     super();

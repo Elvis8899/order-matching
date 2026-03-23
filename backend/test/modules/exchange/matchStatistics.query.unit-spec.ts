@@ -1,4 +1,3 @@
-import { Test } from "@nestjs/testing";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { FakeMatchRepository } from "@src/modules/exchange/database/fakeMatch.repository";
 import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
@@ -9,18 +8,17 @@ import {
 import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
 import { MatchBuilder } from "@test/data-builders/matchBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
-import { TestHelper } from "@test/util/testHelper";
 
 describe("[Unit] Match Statistics", () => {
   const modRef = new UnitModule(
-    Test.createTestingModule({
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        ...TestHelper.unitDefaultProviders,
+        ...UnitModule.unitDefaultProviders,
         MatchStatisticsQueryHandler,
         { provide: MatchRepository, useClass: FakeMatchRepository },
       ],
-    }),
+    },
     (ref) => ({
       matchRepository: ref.get(MatchRepository),
       matchStatisticsQueryHandler: ref.get(MatchStatisticsQueryHandler),

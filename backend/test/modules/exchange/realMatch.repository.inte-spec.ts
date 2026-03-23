@@ -60,7 +60,6 @@ describe("[Integration] Match repository", () => {
       inteM.r.matchRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
         query: { userId: match.buyUserId },
       }),
       inteM.r.matchRepository.findAll(),
@@ -118,7 +117,6 @@ describe("[Integration] Match repository", () => {
       inteM.r.matchRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
         query: {},
       }),
       inteM.r.matchRepository.findAll(),
@@ -141,7 +139,6 @@ describe("[Integration] Match repository", () => {
       inteM.r.matchRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
         query: { minDate: new Date(Date.now() + 24 * 60 * 60 * 1000) },
       }),
       inteM.r.matchRepository.findAll({

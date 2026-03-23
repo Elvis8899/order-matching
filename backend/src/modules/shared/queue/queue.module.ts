@@ -1,7 +1,7 @@
 import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
 import {
-  bullQueueConfig,
+  bullRootModuleOptions,
   QueueNames,
 } from "@src/modules/shared/queue/queue.config";
 
@@ -18,7 +18,7 @@ const queues = [
   }),
 ];
 
-export const BullQueueModule = BullModule.forRootAsync(bullQueueConfig);
+export const BullQueueModule = BullModule.forRoot(bullRootModuleOptions);
 
 @Module({
   imports: [BullQueueModule, ...queues],

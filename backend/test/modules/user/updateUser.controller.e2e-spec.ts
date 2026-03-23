@@ -3,7 +3,6 @@ import { UserBuilder } from "@test/data-builders/userBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 import { UserRepository } from "@user/database/user.repository.port";
 import { unsafeCoerce } from "fp-ts/lib/function";
-import * as request from "supertest";
 
 const testModule = new E2EModule((app) => ({
   userRepository: app.get(UserRepository),
@@ -31,7 +30,8 @@ describe("[e2e] PUT /v1/users/{userId}", () => {
   const v1Route = (id: string) => "/v1/users/" + id;
   it("Should respond 200 updated for a valid user", async () => {
     const userDTO = userBuilder.buildCreateDTO();
-    const response = await request(testModule.app.getHttpServer())
+    const response = await testModule
+      .request()
       .put(v1Route(originalUser.id))
       .send(userDTO);
     expect(response.status).toBe(200);
@@ -39,7 +39,8 @@ describe("[e2e] PUT /v1/users/{userId}", () => {
 
   it("Should respond 422 for invalid name", async () => {
     const userDTO = userBuilder.withUsername("").buildCreateDTO();
-    const response = await request(testModule.app.getHttpServer())
+    const response = await testModule
+      .request()
       .put(v1Route(originalUser.id))
       .send(userDTO);
     expect(response.status).toBe(422);
@@ -47,7 +48,8 @@ describe("[e2e] PUT /v1/users/{userId}", () => {
 
   it("Should respond 422 for invalid name type", async () => {
     const userDTO = userBuilder.withUsername(unsafeCoerce(1)).buildCreateDTO();
-    const response = await request(testModule.app.getHttpServer())
+    const response = await testModule
+      .request()
       .put(v1Route(originalUser.id))
       .send(userDTO);
     expect(response.status).toBe(422);
@@ -61,7 +63,8 @@ describe("[e2e] PUT /v1/users/{userId}", () => {
     const repeaUsername = user.username;
 
     const userDTO = userBuilder.withUsername(repeaUsername).buildCreateDTO();
-    const response = await request(testModule.app.getHttpServer())
+    const response = await testModule
+      .request()
       .put(v1Route(originalUser.id))
       .send(userDTO);
     expect(response.status).toBe(409);

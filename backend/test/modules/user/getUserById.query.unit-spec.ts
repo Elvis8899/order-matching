@@ -1,10 +1,8 @@
-import { Test } from "@nestjs/testing";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
-import { TestHelper } from "@test/util/testHelper";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
 import { UserNotFoundException } from "@user/domain/user.errors";
@@ -15,14 +13,14 @@ import {
 
 describe("[Unit] Get User By Id", () => {
   const modRef = new UnitModule(
-    Test.createTestingModule({
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        ...TestHelper.unitDefaultProviders,
+        ...UnitModule.unitDefaultProviders,
         GetUserByIdQueryHandler,
         { provide: UserRepository, useClass: FakeUserRepository },
       ],
-    }),
+    },
     (ref) => ({
       userRepository: ref.get(UserRepository),
       getUserByIdQueryHandler: ref.get(GetUserByIdQueryHandler),

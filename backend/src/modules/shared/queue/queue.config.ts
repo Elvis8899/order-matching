@@ -1,4 +1,5 @@
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { BullRootModuleOptions } from "@nestjs/bullmq";
+import { get } from "env-var";
 
 export enum QueueNames {
   ORDER_QUEUE = "order-queue",
@@ -8,28 +9,36 @@ export const JobNames = {
   NEW_ORDER: "new-order",
 };
 
-export const bullQueueConfig = {
-  imports: [ConfigModule],
-  inject: [ConfigService],
-  useFactory: (configService: ConfigService) => {
-    const useTls =
-      configService.get<string>("REDIS_USE_TLS") === "true" ||
-      configService.get<boolean>("REDIS_USE_TLS") === true;
+type QueueEnv = {
+  // useTls: boolean;
+  host: string;
+  port: number;
+  password: string | undefined;
+  db: number;
+  defaultAttempts: number;
+};
 
-    return {
-      connection: {
-        host: configService.get<string>("REDIS_HOST") || "cache",
-        port: Number(configService.get<number>("REDIS_PORT")) || 6379,
-        password: configService.get<string>("REDIS_PASSWORD") || undefined,
-        db: configService.get<number>("REDIS_DB") || 0,
-        ...(useTls && { tls: {} }),
-      },
-      defaultJobOptions: {
-        attempts: configService.get<number>("QUEUE_DEFAULT_ATTEMPTS") || 4,
-        backoff: { type: "exponential", delay: 3000 },
-        removeOnComplete: { age: 3600, count: 1000 },
-        removeOnFail: { age: 24 * 3600, count: 1000 },
-      },
-    };
+const queueEnv: QueueEnv = {
+  // useTls: get("REDIS_USE_TLS").default("false").asBool(),
+  host: get("REDIS_HOST").default("cache").asString(),
+  port: get("REDIS_PORT").default(6379).asInt(),
+  password: get("REDIS_PASSWORD").asString() || undefined,
+  db: get("REDIS_DB").default(0).asInt(),
+  defaultAttempts: get("QUEUE_DEFAULT_ATTEMPTS").default(4).asInt(),
+};
+
+export const bullRootModuleOptions: BullRootModuleOptions = {
+  connection: {
+    host: queueEnv.host,
+    port: queueEnv.port,
+    password: queueEnv.password,
+    db: queueEnv.db,
+    // ...(queueEnv.useTls && { tls: {} }),
+  },
+  defaultJobOptions: {
+    attempts: queueEnv.defaultAttempts,
+    backoff: { type: "exponential", delay: 3000 },
+    removeOnComplete: { age: 3600, count: 1000 },
+    removeOnFail: { age: 24 * 3600, count: 1000 },
   },
 };

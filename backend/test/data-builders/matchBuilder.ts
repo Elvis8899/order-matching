@@ -24,11 +24,6 @@ export class MatchBuilder extends BuilderPort<z.input<typeof Match>> {
     };
   }
 
-  withId(id: string) {
-    this.overrides.id = id;
-    return this;
-  }
-
   build(): Match {
     return Match.parse({
       ...this.defaultProperties,

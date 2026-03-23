@@ -55,6 +55,11 @@ export class OrderBuilder extends BuilderPort<z.input<typeof Order>> {
     return this;
   }
 
+  withPrice(price: number) {
+    this.overrides.price = price;
+    return this;
+  }
+
   build(): Order {
     return Order.parse({
       ...this.defaultProperties,

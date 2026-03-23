@@ -8,7 +8,7 @@ import {
 } from "@src/modules/user/domain/events/userCreated.event";
 
 @Injectable()
-export class UserCreatedSubscriber {
+export class CreateUserSubscriber {
   constructor(private readonly commandBus: CommandBus) {}
 
   @OnEvent(USER_CREATED)

@@ -1,5 +1,3 @@
-import * as request from "supertest";
-
 import { HttpStatus } from "@nestjs/common";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
@@ -25,9 +23,7 @@ describe("[e2e] POST /v1/login", () => {
 
   it("Should respond 201 for a valid login", async () => {
     const userInfo = new UserBuilder().buildCreateDTO();
-    const response = await request(testModule.app.getHttpServer())
-      .post(v1Route)
-      .send(userInfo);
+    const response = await testModule.request().post(v1Route).send(userInfo);
     expect(response.status).toBe(HttpStatus.OK);
   });
 
@@ -39,7 +35,8 @@ describe("[e2e] POST /v1/login", () => {
       .buildCreateDTO();
 
     // When it tries to login
-    const responseWrongUsername = await request(testModule.app.getHttpServer())
+    const responseWrongUsername = await testModule
+      .request()
       .post(v1Route)
       .send(userWrongUsername);
 

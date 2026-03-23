@@ -28,6 +28,7 @@ const inteM = new IntegrationModule(
 );
 beforeAll(async () => {
   await inteM.init();
+  await inteM.r.prismaService.user.deleteMany({});
   await executeTask(inteM.r.userRepository.save(new UserBuilder().build()));
 });
 
@@ -60,7 +61,6 @@ describe("[Integration] Wallet repository", () => {
       inteM.r.walletRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
       }),
       inteM.r.walletRepository.findAll(),
     );
@@ -71,6 +71,33 @@ describe("[Integration] Wallet repository", () => {
     expect(resultPaginated.count).toBe(1);
     expect(resultPaginated.data.length).toBe(1);
     expect(resultAll.length).toBe(1);
+  });
+
+  it("Successfully get wallet after save with pagination", async () => {
+    //Given two existing wallet in database
+
+    const walletA = walletBuilder.build();
+    const walletB = walletBuilder
+      .withId(createTestId(TableNameEnum.Wallet, 1))
+      .build();
+    const userB = new UserBuilder(1).build();
+    await executeTask(inteM.r.userRepository.save(userB));
+    await executeTasks(
+      inteM.r.walletRepository.save(walletA),
+      inteM.r.walletRepository.save(walletB),
+    );
+
+    // Should be able to retrieve it
+
+    const [resultPaginated] = await executeTasks(
+      inteM.r.walletRepository.findAllPaginated({
+        page: 1,
+        limit: 1,
+      }),
+    );
+
+    expect(resultPaginated.count).toBe(2);
+    expect(resultPaginated.data.length).toBe(1);
   });
 
   it("Successfully delete wallet after save", async () => {
@@ -120,7 +147,6 @@ describe("[Integration] Wallet repository", () => {
       inteM.r.walletRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
       }),
       inteM.r.walletRepository.findAll(),
     );

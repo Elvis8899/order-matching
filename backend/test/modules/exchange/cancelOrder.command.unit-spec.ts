@@ -1,4 +1,3 @@
-import { Test } from "@nestjs/testing";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
@@ -25,22 +24,21 @@ import { UserBuilder } from "@test/data-builders/userBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
-import { TestHelper } from "@test/util/testHelper";
 
 //Adapters
 
 describe("[Unit] Cancel Order", () => {
   const modRef = new UnitModule(
-    Test.createTestingModule({
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        ...TestHelper.unitDefaultProviders,
+        ...UnitModule.unitDefaultProviders,
         CancelOrderHandler,
         { provide: UserRepository, useClass: FakeUserRepository },
         { provide: WalletRepository, useClass: FakeWalletRepository },
         { provide: OrderRepository, useClass: FakeOrderRepository },
       ],
-    }),
+    },
     (ref) => ({
       walletRepository: ref.get(WalletRepository),
       orderRepository: ref.get(OrderRepository),

@@ -7,16 +7,23 @@ const config: Config = {
   ...baseConf,
   verbose: false,
   collectCoverage: true,
-  bail: 1,
+  bail: false,
   testRegex: ".unit-spec.ts$",
   maxWorkers: 3,
   collectCoverageFrom: [
+    "src/**/subscribers/**/*.subscriber.ts",
     "src/**/commands/**/*.command.ts",
     "src/**/domain/**/*.ts",
     "src/**/queries/**/*.query.ts",
   ],
   coverageThreshold: {
     global: {},
+    "src/**/subscribers/**/*.subscriber.ts": {
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100,
+    },
     "src/**/commands/**/*.command.ts": {
       branches: 100,
       functions: 100,

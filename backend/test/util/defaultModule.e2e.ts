@@ -8,13 +8,13 @@ import {
 import { Test, TestingModule } from "@nestjs/testing";
 import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
 import { AppModule } from "@src/app.module";
-import { FakeOrderCreatedProcessor } from "@src/modules/exchange/processors/fakeOrderCreated.processor";
-import { OrderCreatedProcessor } from "@src/modules/exchange/processors/orderCreated.processor";
+import { CreatedOrderProcessor } from "@src/modules/exchange/processors/createdOrder.processor";
 import { PrismaService } from "@src/modules/shared/prisma/adapter/prisma.service";
 import { QueueNames } from "@src/modules/shared/queue/queue.config";
 import { BullQueueModule } from "@src/modules/shared/queue/queue.module";
 import { MockAuthGuardBuilder } from "@test/data-builders/mockAuthGuardBuilder";
 import { PinoLogger } from "nestjs-pino";
+import * as request from "supertest";
 
 @Module({})
 export class EmptyModule {}
@@ -32,12 +32,12 @@ export class E2EModule<U extends object> {
     .overrideProvider(PinoLogger)
     .useClass(FakeLoggerService)
     .overrideGuard(AuthGuard)
-    .useValue(new MockAuthGuardBuilder())
+    .useValue(new MockAuthGuardBuilder().build())
     // Queue Overrides
     .overrideModule(BullQueueModule)
     .useModule(EmptyModule)
-    .overrideProvider(OrderCreatedProcessor)
-    .useValue(FakeOrderCreatedProcessor)
+    .overrideProvider(CreatedOrderProcessor)
+    .useValue({})
     .overrideProvider(getQueueToken(QueueNames.ORDER_QUEUE))
     .useValue({});
   testingModule!: TestingModule;
@@ -60,5 +60,9 @@ export class E2EModule<U extends object> {
   async close() {
     await this.app.close();
     await this.prismaService.$disconnect();
+  }
+
+  request() {
+    return request(this.app.getHttpServer());
   }
 }

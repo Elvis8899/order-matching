@@ -1,26 +1,32 @@
-import { Test } from "@nestjs/testing";
-import { executeTask } from "@shared/utils/application/executeTask";
+import {
+  executeTask,
+  executeTasks,
+} from "@shared/utils/application/executeTask";
 import { FakeOrderRepository } from "@src/modules/exchange/database/fakeOrder.repository";
 import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
+import {
+  OrderSideEnum,
+  OrderStatusEnum,
+} from "@src/modules/exchange/domain/order.entity";
 import {
   PaginatedOrdersQuery,
   PaginatedOrdersQueryHandler,
 } from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.query";
 import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
+import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
-import { TestHelper } from "@test/util/testHelper";
 
 describe("[Unit] List Orders", () => {
   const modRef = new UnitModule(
-    Test.createTestingModule({
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        ...TestHelper.unitDefaultProviders,
+        ...UnitModule.unitDefaultProviders,
         PaginatedOrdersQueryHandler,
         { provide: OrderRepository, useClass: FakeOrderRepository },
       ],
-    }),
+    },
     (ref) => ({
       orderRepository: ref.get(OrderRepository),
       paginatedOrdersQueryHandler: ref.get(PaginatedOrdersQueryHandler),
@@ -92,5 +98,74 @@ describe("[Unit] List Orders", () => {
     expect(result.count).toBe(0);
     expect(result.page).toBe(page);
     expect(result.limit).toBe(limit);
+  });
+
+  //
+
+  it("Query should work as expected", async () => {
+    //With order in database
+    const order = new OrderBuilder().build();
+    await executeTask(modRef.r.orderRepository.save(order));
+
+    //When we try to retrieve with queries that wouldn't find anything
+    const resultEmpty = await executeTasks(
+      modRef.r.orderRepository.findAll({
+        query: { maxDate: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { minPrice: order.price + 1 },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { maxPrice: order.price - 1 },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { status: OrderStatusEnum.Cancelled },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { side: OrderSideEnum.Sell },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { userId: createTestId(TableNameEnum.None, 0) },
+      }),
+    );
+
+    // Or queries that would find something
+    const resultNonEmpty = await executeTasks(
+      modRef.r.orderRepository.findAll(),
+      modRef.r.orderRepository.findAll({
+        query: { maxDate: new Date(Date.now() + 24 * 60 * 60 * 1000) },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { minPrice: order.price - 1 },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { maxPrice: order.price + 1 },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { status: order.status },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { side: order.side },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: { userId: order.userId },
+      }),
+      modRef.r.orderRepository.findAll({
+        query: {
+          userId: order.userId,
+          side: order.side,
+          status: order.status,
+          maxPrice: order.price + 1,
+          minPrice: order.price - 1,
+          maxDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      }),
+    );
+    resultEmpty.forEach((res) => {
+      expect(res.length).toBe(0);
+    });
+    resultNonEmpty.forEach((res) => {
+      expect(res.length).toBe(1);
+    });
   });
 });

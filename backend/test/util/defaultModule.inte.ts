@@ -18,6 +18,7 @@ export class IntegrationModule<U extends object> {
 
   async init() {
     this.testingModule = await this.builder.compile();
+    await this.testingModule.init();
     this.r = this.repositoryLoader(this.testingModule);
   }
 }

@@ -19,7 +19,7 @@ export const Order = z
     id: UUID,
     side: z.enum(OrderSideEnum),
     price: z.number(),
-    amount: z.number(),
+    amount: z.number().positive(),
     filled: z.number().default(0),
     status: z.enum(OrderStatusEnum).default(OrderStatusEnum.Active),
     userId: UUID,

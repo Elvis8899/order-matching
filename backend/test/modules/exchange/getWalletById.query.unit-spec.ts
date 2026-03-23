@@ -1,4 +1,3 @@
-import { Test } from "@nestjs/testing";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
 import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
@@ -11,18 +10,17 @@ import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-pub
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
-import { TestHelper } from "@test/util/testHelper";
 
 describe("[Unit] Get Wallet By Id", () => {
   const modRef = new UnitModule(
-    Test.createTestingModule({
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        ...TestHelper.unitDefaultProviders,
+        ...UnitModule.unitDefaultProviders,
         GetWalletByIdQueryHandler,
         { provide: WalletRepository, useClass: FakeWalletRepository },
       ],
-    }),
+    },
     (ref) => ({
       walletRepository: ref.get(WalletRepository),
       getWalletByIdQueryHandler: ref.get(GetWalletByIdQueryHandler),

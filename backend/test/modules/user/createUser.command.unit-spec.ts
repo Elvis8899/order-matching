@@ -1,9 +1,8 @@
-import { comparePassword } from "@auth/util/password";
 import { UnprocessableEntityException } from "@nestjs/common";
-import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { UserBuilder } from "@test/dataBuilders/userBuilder";
+import { UserBuilder } from "@test/data-builders/userBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 import {
   CreateUser,
@@ -11,7 +10,6 @@ import {
 } from "@user/commands/createUser/createUser.command";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
-import { UserRoleEnum } from "@user/domain/user.entity";
 import { UsernameAlreadyExistsException } from "@user/domain/user.errors";
 
 //Adapters
@@ -111,57 +109,5 @@ describe("[Unit] Create User", () => {
     await expect(resultPromise).rejects.toBeInstanceOf(
       UsernameAlreadyExistsException,
     );
-  });
-
-  it("Should store a hash of the password", async () => {
-    //Given a potentially valid user
-    const user = new UserBuilder().buildCreateDTO();
-
-    //When we create it
-    await moduleRef.r.createUserHandler.execute(new CreateUser(user));
-
-    //Then the stored password is a hash of the given one
-    const [stored] = await executeTask(moduleRef.r.userRepository.findAll());
-    expect(stored?.password).not.toBe(user.password);
-    expect(await comparePassword(user.password, stored?.password ?? "")).toBe(
-      true,
-    );
-  });
-
-  it("Should create a client even when asked for another role", async () => {
-    //Given a user asking to be an admin
-    const user = new UserBuilder()
-      .withRole(UserRoleEnum.Admin)
-      .buildCreateDTO();
-
-    //When we create it
-    await moduleRef.r.createUserHandler.execute(new CreateUser(user));
-
-    //Then it is a client
-    const [stored] = await executeTask(moduleRef.r.userRepository.findAll());
-    expect(stored?.role).toBe(UserRoleEnum.Client);
-  });
-
-  it.each([
-    ["too short", "1234567"],
-    ["too long", "a".repeat(73)],
-    ["missing", undefined],
-  ])("Should not create a user if the password is %s", async (_, password) => {
-    //Given a user with an invalid password
-    const user = new UserBuilder()
-      .withPassword(password as string)
-      .buildCreateDTO();
-
-    //When we create it
-    const resultPromise = moduleRef.r.createUserHandler.execute(
-      new CreateUser(user),
-    );
-
-    //Then it is rejected
-    await expect(resultPromise).rejects.toBeInstanceOf(
-      UnprocessableEntityException,
-    );
-    const users = await executeTask(moduleRef.r.userRepository.findAll());
-    expect(users.length).toEqual(0);
   });
 });

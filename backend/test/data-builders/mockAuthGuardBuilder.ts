@@ -9,7 +9,7 @@ type AuthGuardMock = {
 
 export class MockAuthGuardBuilder extends BuilderPort<RequestJWTPayload> {
   protected override defaultProperties = {
-    sub: createTestId(TableNameEnum.User, 1),
+    sub: createTestId(TableNameEnum.User, 0),
     username: "admin@admin.com",
     iat: 0,
     exp: 0,
@@ -17,7 +17,7 @@ export class MockAuthGuardBuilder extends BuilderPort<RequestJWTPayload> {
     iss: "",
   };
 
-  constructor(index = 1) {
+  constructor(index = 0) {
     super();
     this.defaultProperties.sub = createTestId(TableNameEnum.User, index);
 
@@ -26,17 +26,17 @@ export class MockAuthGuardBuilder extends BuilderPort<RequestJWTPayload> {
     };
   }
 
-  withSub(sub: string) {
-    this.overrides.sub = sub;
-    return this;
-  }
-
   build(): AuthGuardMock {
     return {
       canActivate: this.canActivate.bind(this),
     };
   }
 
+  buildPayload(): RequestJWTPayload {
+    return {
+      ...this.overrides,
+    };
+  }
   private canActivate(context: ExecutionContext): boolean {
     const request = context
       .switchToHttp()

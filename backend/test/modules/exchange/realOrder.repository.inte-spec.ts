@@ -64,7 +64,6 @@ describe("[Integration] Order repository", () => {
       inteM.r.orderRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
         query: {},
       }),
       inteM.r.orderRepository.findAll(),
@@ -125,7 +124,6 @@ describe("[Integration] Order repository", () => {
       inteM.r.orderRepository.findAllPaginated({
         page: 0,
         limit: 10,
-        offset: 0,
         query: {},
       }),
       inteM.r.orderRepository.findAll(),
@@ -216,7 +214,6 @@ describe("[Integration] Order repository", () => {
       inteM.r.orderRepository.paginatedGroupedOrders({
         page: 0,
         limit: 10,
-        offset: 0,
         query: { side: order.side },
       }),
     );
@@ -249,7 +246,6 @@ describe("[Integration] Order repository", () => {
       inteM.r.orderRepository.paginatedGroupedOrders({
         page: 0,
         limit: 10,
-        offset: 0,
         query: { side: order.side },
       }),
     );
@@ -279,7 +275,6 @@ describe("[Integration] Order repository", () => {
       inteM.r.orderRepository.paginatedGroupedOrders({
         page: 0,
         limit: 10,
-        offset: 0,
         query: { side: OrderSideEnum.Buy },
       }),
     );

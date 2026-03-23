@@ -1,5 +1,6 @@
-#estágio de compilação a
-FROM node:20-slim
+# #estágio de compilação a
+ARG NODE_VERSION=24.14.0-alpine
+FROM node:${NODE_VERSION} AS dev
 WORKDIR /usr/src/app
 COPY ../package*.json ./
 RUN yarn install
@@ -8,4 +9,3 @@ RUN yarn install
 EXPOSE 3000
 
 CMD ["yarn", "dev" , '--host', '0.0.0.0']
-

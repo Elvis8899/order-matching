@@ -53,7 +53,6 @@ describe("[Integration] User repository", () => {
         inteM.r.userRepository.findAllPaginated({
           page: 0,
           limit: 10,
-          offset: 0,
         }),
         inteM.r.userRepository.findAll(),
       );
@@ -122,7 +121,6 @@ describe("[Integration] User repository", () => {
         inteM.r.userRepository.findAllPaginated({
           page: 0,
           limit: 10,
-          offset: 0,
         }),
         inteM.r.userRepository.findAll(),
       );

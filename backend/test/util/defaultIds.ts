@@ -14,5 +14,5 @@ export const defaultIdPrefixEnum: Record<TableNameEnum, string> = {
   [TableNameEnum.None]: "99999999-0000-0000-0000-",
 };
 
-export const createTestId = (prefix: TableNameEnum, index: number) =>
+export const createTestId = (prefix: TableNameEnum, index: number = 0) =>
   defaultIdPrefixEnum[prefix] + (index * 1e-12).toFixed(12).replace("0.", "");

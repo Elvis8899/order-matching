@@ -15,7 +15,7 @@ import { Server, Socket } from "socket.io";
     origin: "*",
   },
 })
-export class EventsGateway implements OnGatewayConnection {
+export class SocketGateway implements OnGatewayConnection {
   @WebSocketServer()
   private server!: Server;
 

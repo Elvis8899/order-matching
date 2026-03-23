@@ -1,4 +1,3 @@
-import { Test } from "@nestjs/testing";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
@@ -14,21 +13,20 @@ import { UserRepository } from "@src/modules/user/database/user.repository.port"
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
-import { TestHelper } from "@test/util/testHelper";
 
 //Adapters
 
 describe("[Unit] Create Wallet", () => {
   const modRef = new UnitModule(
-    Test.createTestingModule({
+    {
       imports: [DomainEventPublisherModule],
       providers: [
-        ...TestHelper.unitDefaultProviders,
+        ...UnitModule.unitDefaultProviders,
         CreateWalletHandler,
         { provide: UserRepository, useClass: FakeUserRepository },
         { provide: WalletRepository, useClass: FakeWalletRepository },
       ],
-    }),
+    },
     (ref) => ({
       walletRepository: ref.get(WalletRepository),
       userRepository: ref.get(UserRepository),

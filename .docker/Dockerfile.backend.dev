@@ -12,4 +12,4 @@ RUN npx prisma generate
 
 EXPOSE 4000
 
-ENTRYPOINT [ "sh", "/usr/src/util/entrypoint.dev.sh" ]
+ENTRYPOINT [ "sh", "/usr/src/app/.docker/util/entrypoint.dev.sh" ]

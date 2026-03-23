@@ -13,7 +13,7 @@ import { RealMatchRepository } from "@src/modules/exchange/database/realMatch.re
 import { RealOrderRepository } from "@src/modules/exchange/database/realOrder.repository";
 import { RealWalletRepository } from "@src/modules/exchange/database/realWallet.repository";
 import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { OrderCreatedProcessor } from "@src/modules/exchange/processors/orderCreated.processor";
+import { CreatedOrderProcessor } from "@src/modules/exchange/processors/createdOrder.processor";
 import { GetWalletByIdController } from "@src/modules/exchange/queries/getWalletById/getWalletById.controller";
 import { GetWalletByIdQueryHandler } from "@src/modules/exchange/queries/getWalletById/getWalletById.query";
 import { MatchStatisticsController } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.controller";
@@ -24,9 +24,9 @@ import { PaginatedMatchController } from "@src/modules/exchange/queries/paginate
 import { PaginatedMatchesQueryHandler } from "@src/modules/exchange/queries/paginatedMatches/paginatedMatches.query";
 import { PaginatedOrderController } from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.controller";
 import { PaginatedOrdersQueryHandler } from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.query";
-import { MatchCreatedSubscriber } from "@src/modules/exchange/subscribers/matchCreated.subscriber";
-import { OrderCreatedSubscriber } from "@src/modules/exchange/subscribers/orderCreated.subscriber";
-import { UserCreatedSubscriber } from "@src/modules/exchange/subscribers/userCreated.subscriber";
+import { CreateMatchSubscriber } from "@src/modules/exchange/subscribers/createMatch.subscriber";
+import { CreateOrderSubscriber } from "@src/modules/exchange/subscribers/createOrder.subscriber";
+import { CreateUserSubscriber } from "@src/modules/exchange/subscribers/createUser.subscriber";
 import { QueueModule } from "@src/modules/shared/queue/queue.module";
 import { RealUserRepository } from "@src/modules/user/database/realUser.repository";
 import { UserRepository } from "@src/modules/user/database/user.repository.port";
@@ -55,10 +55,10 @@ const queryHandlers: Provider[] = [
   PaginatedGroupedOrdersQueryHandler,
 ];
 const subscribers = [
-  UserCreatedSubscriber,
-  OrderCreatedSubscriber,
-  OrderCreatedProcessor,
-  MatchCreatedSubscriber,
+  CreateUserSubscriber,
+  CreateOrderSubscriber,
+  CreatedOrderProcessor,
+  CreateMatchSubscriber,
 ];
 const services = [RealUUIDGeneratorService];
 const repositories = [
