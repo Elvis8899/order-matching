@@ -1,11 +1,21 @@
 import "@shared/utils/config/dotenv";
 import { get } from "env-var";
 
+const MIN_SECRET_LENGTH = 32;
+
+export const getSecret = (name: string): string => {
+  const secret = get(name).required().asString();
+  if (secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(
+      `${name} must be at least ${String(MIN_SECRET_LENGTH)} characters long`,
+    );
+  }
+  return secret;
+};
+
 export const authConfig = {
-  secret: get("JWT_SECRET_KEY").default("default-secret").asString(),
-  refreshSecret: get("JWT_REFRESH_SECRET")
-    .default("default-refresh-secret")
-    .asString(),
+  secret: getSecret("JWT_SECRET_KEY"),
+  refreshSecret: getSecret("JWT_REFRESH_SECRET"),
   audience: get("JWT_TOKEN_AUDIENCE").default("default-audience").asString(),
   issuer: get("JWT_TOKEN_ISSUER").default("default-issuer").asString(),
   accessTokenTtl: get("JWT_ACCESS_TOKEN_TTL").default(3600).asInt(),

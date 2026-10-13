@@ -7,7 +7,7 @@ Improvements ported from the Library project (`../Library`), which shares this b
 - [x] Commit the TypeScript 6 upgrade
 - [x] Remove the leftover `@rental`, `@book` and `@configs` aliases, add `@exchange/`, rename the Swagger title ("Biblioteca") and fix the `shared.erros.ts` typo
 - [x] Move the app setup out of `main.ts` into `app.setup.ts` and build e2e apps with it (`createTestApp`)
-- [ ] Refuse to start without `JWT_SECRET_KEY` and `JWT_REFRESH_SECRET` of at least 32 characters
+- [x] Refuse to start without `JWT_SECRET_KEY` and `JWT_REFRESH_SECRET` of at least 32 characters
 - [ ] Add `RolesGuard` and `@Roles` (decide first which routes are admin-only)
 - [ ] CI: Node 24, `migrate:check`; remove the `postMigration` script
 - [ ] Production Dockerfile, and fix its path in `.docker/docker-compose.yml`
