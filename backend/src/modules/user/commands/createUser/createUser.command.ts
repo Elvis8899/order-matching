@@ -1,5 +1,6 @@
+import { hashPassword } from "@auth/util/password";
 import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, O, RE, RTE } from "@shared/utils/application/monads";
@@ -9,7 +10,7 @@ import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/real
 import { UUID } from "@shared/uuid/entities/uuid";
 import { UserRepository } from "@user/database/user.repository.port";
 import { USER_CREATED } from "@user/domain/events/userCreated.event";
-import { User } from "@user/domain/user.entity";
+import { Password, User, UserRoleEnum } from "@user/domain/user.entity";
 import { usernameAlreadyExistsException } from "@user/domain/user.errors";
 import { CreateUserDto } from "@user/dtos/user.dto";
 import { PinoLogger } from "nestjs-pino";
@@ -30,7 +31,8 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, void> {
   }
 
   execute(command: CreateUser): Promise<void> {
-    this.logger.info(command.props, "CreateUser command received");
+    const { password: _password, ...loggedProps } = command.props;
+    this.logger.info(loggedProps, "CreateUser command received");
     const task = FPF.pipe(
       //Data validation
       RE.of(command.props),
@@ -38,7 +40,19 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, void> {
         fromInputRE(UUID, "uuid")(this.uuidGeneratorService.generateUUID()),
       ),
 
-      RE.chain(fromInputRE(User, "User")),
+      RE.tap((props) => fromInputRE(Password, "password")(props.password)),
+      // Users who sign up are clients; only an admin can promote them
+      RE.chain(({ id, username, password }) =>
+        fromInputRE(
+          User,
+          "User",
+        )({
+          id,
+          username,
+          password,
+          role: UserRoleEnum.Client,
+        }),
+      ),
 
       RTE.fromReaderEither,
 
@@ -53,6 +67,15 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, void> {
               RTE.fromOption(usernameAlreadyExistsException),
             ),
           ),
+        ),
+      ),
+
+      //Hash password
+      RTE.chainW((user) =>
+        FPF.pipe(
+          user.password,
+          RTE.fromTaskK((password) => () => hashPassword(password)),
+          RTE.map((password) => ({ ...user, password })),
         ),
       ),
 

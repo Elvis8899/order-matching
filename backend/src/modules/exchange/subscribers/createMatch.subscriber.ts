@@ -8,7 +8,7 @@ import { MatchStatisticsQuery } from "@exchange/queries/matchStatistics/matchSta
 import { Injectable } from "@nestjs/common";
 import { QueryBus } from "@nestjs/cqrs";
 import { OnEvent } from "@nestjs/event-emitter";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
 
 @Injectable()

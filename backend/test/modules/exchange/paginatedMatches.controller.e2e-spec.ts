@@ -1,6 +1,6 @@
 import { MatchRepository } from "@exchange/database/match.repository.port";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { MatchBuilder } from "@test/data-builders/matchBuilder";
+import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 
 const testModule = new E2EModule((app) => ({

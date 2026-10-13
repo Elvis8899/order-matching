@@ -11,7 +11,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Paginated } from "@shared/utils/database/repository.port";
-import { PaginatedQueryRequestDto } from "@shared/utils/dtos/paginated-query.request.dto";
+import { PaginatedQueryRequestDto } from "@shared/utils/dtos/paginatedQuery.request.dto";
 
 @Controller("v1/")
 @ApiTags("Pedidos")

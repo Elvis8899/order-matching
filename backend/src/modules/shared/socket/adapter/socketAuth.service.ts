@@ -1,40 +1,25 @@
 import { RequestJWTPayload } from "@auth/domain/login.entity";
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Socket } from "socket.io";
+
+export type AuthenticatedSocketData = { user: RequestJWTPayload };
 
 @Injectable()
 export class WsAuthService {
   constructor(private jwtService: JwtService) {}
 
-  private initializationMap = new Map<string, Promise<unknown>>();
-
-  onClientConnect(socket: Socket) {
-    this.initializationMap.set(socket.id, this.initialize(socket));
-  }
-
-  async finishInitialization(socket: Socket): Promise<void> {
-    await this.initializationMap.get(socket.id);
-  }
-
-  private async initialize(socket: Socket): Promise<void> {
-    // asynchronously get user data
-
-    const token = socket.handshake.auth.token as string;
-    try {
-      // 💡 Here the JWT secret key that's used for verifying the payload
-      // is the key that was passsed in the JwtModule
-      const payload =
-        await this.jwtService.verifyAsync<RequestJWTPayload>(token);
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      (socket.data as { user: RequestJWTPayload | null }).user = payload;
-
-      await socket.join(payload.sub);
-      await socket.join("statistics");
-    } catch {
-      (socket.data as { user: RequestJWTPayload | null }).user = null;
+  /**
+   * Verifies the access token sent in the handshake (`auth.token`) with the
+   * JwtModule's secret, audience and issuer, and stores its payload in
+   * `socket.data.user`. Rejects when the token is missing or invalid.
+   */
+  async authenticate(socket: Socket): Promise<void> {
+    const { token } = socket.handshake.auth as { token?: unknown };
+    if (typeof token !== "string" || token === "") {
+      throw new UnauthorizedException();
     }
-    this.initializationMap.delete(socket.id);
+    const user = await this.jwtService.verifyAsync<RequestJWTPayload>(token);
+    (socket.data as AuthenticatedSocketData).user = user;
   }
 }

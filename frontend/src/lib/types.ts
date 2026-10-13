@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   username: string;
+  role: "admin" | "client";
 }
 export interface Wallet {
   btc: number;

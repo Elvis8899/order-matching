@@ -2,6 +2,7 @@
 import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
 import eslint from "@eslint/js";
 import prettierlint from "eslint-config-prettier";
+import checkFile from "eslint-plugin-check-file";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
@@ -82,5 +83,23 @@ export default defineConfig(
     // disable type-aware rules on subset of files
     files: ["**/*.{js,mjs,d.ts}"],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    // Files and folders are named in camelCase; suffixes like .command or
+    // .unit-spec are ignored. Jest configs keep their tool-style names.
+    files: ["src/**/*.ts", "test/**/*.ts"],
+    ignores: ["test/jest*.config.ts"],
+    plugins: { "check-file": checkFile },
+    rules: {
+      "check-file/filename-naming-convention": [
+        "error",
+        { "**/*.ts": "CAMEL_CASE" },
+        { ignoreMiddleExtensions: true },
+      ],
+      "check-file/folder-naming-convention": [
+        "error",
+        { "src/**/": "CAMEL_CASE", "test/**/": "CAMEL_CASE" },
+      ],
+    },
   },
 );

@@ -2,6 +2,7 @@ import { RequestJWTPayload } from "@auth/domain/login.entity";
 import { ExecutionContext } from "@nestjs/common";
 import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
+import { UserRoleEnum } from "@user/domain/user.entity";
 
 type AuthGuardMock = {
   canActivate: (context: ExecutionContext) => boolean;
@@ -10,7 +11,8 @@ type AuthGuardMock = {
 export class MockAuthGuardBuilder extends BuilderPort<RequestJWTPayload> {
   protected override defaultProperties = {
     sub: createTestId(TableNameEnum.User, 0),
-    username: "admin@admin.com",
+    username: "usuario 0",
+    role: UserRoleEnum.Client,
     iat: 0,
     exp: 0,
     aud: "",
@@ -24,6 +26,16 @@ export class MockAuthGuardBuilder extends BuilderPort<RequestJWTPayload> {
     this.overrides = {
       ...this.defaultProperties,
     };
+  }
+
+  withSub(sub: string) {
+    this.overrides.sub = sub;
+    return this;
+  }
+
+  withRole(role: UserRoleEnum) {
+    this.overrides.role = role;
+    return this;
   }
 
   build(): AuthGuardMock {

@@ -4,12 +4,12 @@ import {
   PaginatedMatchesQuery,
   PaginatedMatchesQueryHandler,
 } from "@exchange/queries/paginatedMatches/paginatedMatches.query";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { MatchBuilder } from "@test/data-builders/matchBuilder";
+import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

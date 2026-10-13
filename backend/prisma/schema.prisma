@@ -8,14 +8,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRoleEnum {
+  admin
+  client
+}
+
 model User {
-  id        String   @unique
-  username  String   @unique
+  id           String       @unique
+  username     String       @unique
+  // bcrypt hash
+  password     String
+  role         UserRoleEnum @default(client)
+  // Incremented to revoke all refresh tokens issued to the user
+  tokenVersion Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  orders          Order[]
+  wallet          Wallet?
+  refreshSessions RefreshSession[]
+}
+
+// One per login. Refresh tokens are single-use: only the token carrying the
+// session's current jti is accepted, and each refresh replaces it
+model RefreshSession {
+  id         String   @id
+  currentJti String
+  expiresAt  DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders Order[]
-  wallet Wallet?
+  @@index([userId])
 }
 
 model Wallet {

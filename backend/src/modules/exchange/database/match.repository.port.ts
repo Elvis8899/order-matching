@@ -4,7 +4,7 @@ import {
   Paginated,
   RepositoryDefaultPort,
 } from "@shared/utils/database/repository.port";
-import { DateType } from "@shared/utils/domain/DateType";
+import { DateType } from "@shared/utils/domain/dateType";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 import { UUID } from "@shared/uuid/entities/uuid";
 import z from "zod";

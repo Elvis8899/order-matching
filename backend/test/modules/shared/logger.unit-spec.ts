@@ -1,4 +1,4 @@
-import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
+import { FakeLoggerService } from "@shared/logger/adapters/fake/fakeLogger.service";
 import { getGenReqId, getLoggerOptions } from "@shared/logger/logger.config";
 import { FPF } from "@shared/utils/application/monads";
 import { UnitModule } from "@test/util/defaultModule.unit";

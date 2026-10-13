@@ -1,25 +1,27 @@
 import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
-import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { UserRepository } from "@user/database/user.repository.port";
 import { USER_DELETED } from "@user/domain/events/userDeleted.event";
+import { canManageUser, Requester } from "@user/domain/user.entity";
 import { userNotFoundException } from "@user/domain/user.errors";
 import { PinoLogger } from "nestjs-pino";
 
 export class DeleteUser implements ICommand {
-  constructor(public readonly props: string) {}
+  constructor(
+    public readonly props: string,
+    public readonly requester: Requester,
+  ) {}
 }
 
 @CommandHandler(DeleteUser)
 export class DeleteUserHandler implements ICommandHandler<DeleteUser, void> {
   constructor(
-    private readonly uuidGeneratorService: RealUUIDGeneratorService,
     private readonly userRepository: UserRepository,
     private readonly domainEventPublisher: DomainEventPublisher,
     private readonly logger: PinoLogger,
@@ -34,6 +36,13 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUser, void> {
       command.props,
       fromInputRE(UUID, "id"),
       RTE.fromReaderEither,
+
+      // Users may only delete themselves; someone else's account is
+      // reported as not found
+      RTE.filterOrElseW(
+        (id) => canManageUser(command.requester, id),
+        userNotFoundException,
+      ),
 
       // Validate User exists
       RTE.chain(

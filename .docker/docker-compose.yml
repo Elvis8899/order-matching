@@ -29,6 +29,10 @@ services:
     # platform: linux/amd64
     ports:
       - "3000:3000"
+    environment:
+      # nginx reaches the app through this network: trust its
+      # X-Forwarded-For, so login rate limits apply per client IP
+      TRUST_PROXY: "172.18.0.0/16"
     networks:
       - "nginx_network"
     depends_on:

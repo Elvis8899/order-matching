@@ -1,5 +1,5 @@
 import { CreateUserSubscriber } from "@exchange/subscribers/createUser.subscriber";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 import { unsafeCoerce } from "fp-ts/lib/function";
 
@@ -44,7 +44,13 @@ describe("[e2e] POST /v1/users", () => {
     expect(response.status).toBe(422);
   });
 
-  it("Should respond 409 for two users with same cpf", async () => {
+  it("Should respond 422 for a short password", async () => {
+    const user = userBuilder.withPassword("short").buildCreateDTO();
+    const response = await testModule.request().post(v1Route).send(user);
+    expect(response.status).toBe(422);
+  });
+
+  it("Should respond 409 for two users with same username", async () => {
     const user = userBuilder.buildCreateDTO();
     const userCopy = user;
     const newuserResponse = await testModule.request().post(v1Route).send(user);

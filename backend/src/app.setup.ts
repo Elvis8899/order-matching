@@ -6,13 +6,20 @@ import {
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { envConfig } from "@shared/utils/config/environment.config";
 import { contentParser } from "fastify-file-interceptor";
 import { Logger } from "nestjs-pino";
 
 // Shared by main.ts and the e2e tests, so the tests run the app with the
 // same setup as production
 
-export const createAdapter = (): FastifyAdapter => new FastifyAdapter();
+/**
+ * Client IPs (used for rate limiting) come from X-Forwarded-For only when
+ * the request arrives from a trusted proxy (TRUST_PROXY)
+ */
+export const createAdapter = (
+  trustProxy: boolean | string[] = envConfig.trustProxy,
+): FastifyAdapter => new FastifyAdapter({ trustProxy });
 
 export const configureApp = async (
   app: NestFastifyApplication,

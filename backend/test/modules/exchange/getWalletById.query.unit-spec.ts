@@ -5,9 +5,9 @@ import {
   GetWalletByIdQuery,
   GetWalletByIdQueryHandler,
 } from "@exchange/queries/getWalletById/getWalletById.query";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { WalletBuilder } from "@test/data-builders/walletBuilder";
+import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

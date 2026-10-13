@@ -18,7 +18,7 @@ import {
 } from "@exchange/domain/order.entity";
 import { Wallet } from "@exchange/domain/wallet.entity";
 import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { fromInputRE } from "@shared/utils/application/fromInput";
 import { A, Apply, FPF, RE, RTE } from "@shared/utils/application/monads";

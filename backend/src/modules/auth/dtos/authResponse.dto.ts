@@ -1,7 +1,11 @@
 import { ApiProperty, PickType } from "@nestjs/swagger";
 import { UserDto } from "@user/dtos/user.dto";
 
-class AuthUserDto extends PickType(UserDto, ["id", "username"] as const) {}
+class AuthUserDto extends PickType(UserDto, [
+  "id",
+  "username",
+  "role",
+] as const) {}
 
 export class AuthResponseDto {
   @ApiProperty({

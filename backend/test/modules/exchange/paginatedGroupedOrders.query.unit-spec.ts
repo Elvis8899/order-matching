@@ -5,10 +5,10 @@ import {
   PaginatedGroupedOrdersQuery,
   PaginatedGroupedOrdersQueryHandler,
 } from "@exchange/queries/paginatedGroupedOrders/paginatedGroupedOrders.query";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { A } from "@shared/utils/application/monads";
-import { OrderBuilder } from "@test/data-builders/orderBuilder";
+import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 
 describe("[Unit] List Grouped Orders", () => {

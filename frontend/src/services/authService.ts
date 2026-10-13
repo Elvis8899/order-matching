@@ -1,35 +1,46 @@
+import axios from "axios";
 import { User } from "@/lib/types";
+import { CredentialsStorage } from "@/services/credentials";
 import { UserService } from "@/services/userService";
 
-const USER_KEY = "exchange_user";
-const TOKEN_KEY = "exchange_token";
+const errorMessage = (error: unknown, fallback: string) => {
+  const message = axios.isAxiosError<{ message?: unknown }>(error)
+    ? error.response?.data?.message
+    : undefined;
+  return new Error(typeof message === "string" ? message : fallback);
+};
 
 export class AuthService {
-  static async login(username: string): Promise<User> {
-    const res = await UserService.login(username).catch(async (e) => {
-      const status = e.response.status;
-      if (status === 401) {
-        const createUser = await UserService.createUser(username);
-        if (createUser.status === 201) {
-          return UserService.login(username);
+  // Logs in, or signs up when the username is new
+  static async login(username: string, password: string): Promise<User> {
+    const credentials = await UserService.login(username, password)
+      .then((res) => res.data)
+      .catch(async (error) => {
+        if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+          throw errorMessage(error, "Unable to login");
         }
-      }
-    });
-    const data = res.data;
-
-    if (!data.accessToken) {
-      throw new Error("Unable to login");
-    }
-    localStorage.setItem(TOKEN_KEY, data.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-    return data.user;
+        await UserService.createUser(username, password).catch((e) => {
+          const status = axios.isAxiosError(e) ? e.response?.status : null;
+          // The username exists, so the password was wrong
+          if (status === 409) throw new Error("Wrong username or password");
+          if (status === 422) {
+            throw new Error("Passwords need 8 to 72 characters");
+          }
+          throw errorMessage(e, "Unable to register");
+        });
+        return (await UserService.login(username, password)).data;
+      });
+    CredentialsStorage.save(credentials);
+    return credentials.user;
   }
+
   static getUser(): User | null {
-    const data = localStorage.getItem(USER_KEY);
-    return data ? JSON.parse(data) : null;
+    return CredentialsStorage.getUser();
   }
 
-  static logout() {
-    localStorage.removeItem(TOKEN_KEY);
+  // Revokes the refresh tokens on the server; the local session ends anyway
+  static async logout() {
+    await UserService.logout().catch(() => undefined);
+    CredentialsStorage.clear();
   }
 }

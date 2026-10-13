@@ -7,8 +7,8 @@ import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { OrderBuilder } from "@test/data-builders/orderBuilder";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";

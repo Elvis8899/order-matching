@@ -1,3 +1,4 @@
+import { AuthenticatedRequest, toRequester } from "@auth/domain/login.entity";
 import { AuthGuard } from "@auth/guards/auth.guard";
 import {
   Controller,
@@ -5,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Request,
   UseGuards,
 } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
@@ -34,10 +36,16 @@ export class DeleteUserController {
   @ApiNotFoundResponse({ description: "Usuário não encontrado." })
   @ApiUnprocessableEntityResponse({ description: "Id inválido." })
   @ApiDefaultResponse({ description: "Usuário excluído com sucesso." })
-  @ApiOperation({ summary: "Deletar Usuário" })
-  async deleteUser(@Param("id") userId: string): Promise<void> {
+  @ApiOperation({
+    summary: "Deletar Usuário",
+    description: "Clientes só podem excluir a própria conta.",
+  })
+  async deleteUser(
+    @Param("id") userId: string,
+    @Request() req: AuthenticatedRequest,
+  ): Promise<void> {
     return this.commandBus
-      .execute<DeleteUser>(new DeleteUser(userId))
+      .execute<DeleteUser>(new DeleteUser(userId, toRequester(req.user)))
       .then(noop);
   }
 }

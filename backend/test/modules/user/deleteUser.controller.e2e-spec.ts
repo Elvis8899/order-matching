@@ -1,5 +1,5 @@
 import { executeTask } from "@shared/utils/application/executeTask";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 import { UserRepository } from "@user/database/user.repository.port";
 
@@ -16,6 +16,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await testModule.prismaService.user.deleteMany();
+  testModule.authGuard.reset();
 });
 
 afterEach(async () => {
@@ -34,6 +35,16 @@ describe("[e2e] DELETE /v1/users/:id", () => {
     expect(response.status).toBe(200);
     const userAmount = await testModule.prismaService.user.count();
     expect(userAmount).toBe(0);
+  });
+
+  it("Should respond 404 for someone else's account", async () => {
+    const other = new UserBuilder(2).build();
+    await executeTask(testModule.r.userRepository.save(other));
+
+    const response = await testModule.request().delete(v1Route(other.id));
+
+    expect(response.status).toBe(404);
+    expect(await testModule.prismaService.user.count()).toBe(1);
   });
 
   it("Should respond 422 for invalid id", async () => {

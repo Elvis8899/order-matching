@@ -6,8 +6,8 @@ import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { UserBuilder } from "@test/data-builders/userBuilder";
-import { WalletBuilder } from "@test/data-builders/walletBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
+import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";

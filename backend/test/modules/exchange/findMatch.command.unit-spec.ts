@@ -13,12 +13,12 @@ import {
   MATCH_TAKER_FEE,
 } from "@exchange/domain/match.entity";
 import { OrderSideEnum, OrderStatusEnum } from "@exchange/domain/order.entity";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { A, TE } from "@shared/utils/application/monads";
-import { OrderBuilder } from "@test/data-builders/orderBuilder";
-import { WalletBuilder } from "@test/data-builders/walletBuilder";
+import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
+import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

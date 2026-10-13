@@ -9,10 +9,10 @@ import {
 import { MatchStatisticsQueryHandler } from "@exchange/queries/matchStatistics/matchStatistics.query";
 import { CreateMatchSubscriber } from "@exchange/subscribers/createMatch.subscriber";
 import { CqrsModule } from "@nestjs/cqrs";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { MatchBuilder } from "@test/data-builders/matchBuilder";
+import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 
 describe("[Unit] Endpoint Response - Subscriber", () => {

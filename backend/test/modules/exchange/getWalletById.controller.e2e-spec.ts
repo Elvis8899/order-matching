@@ -1,7 +1,7 @@
 import { WalletRepository } from "@exchange/database/wallet.repository.port";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { UserBuilder } from "@test/data-builders/userBuilder";
-import { WalletBuilder } from "@test/data-builders/walletBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
+import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 import { UserRepository } from "@user/database/user.repository.port";
 

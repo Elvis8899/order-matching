@@ -6,8 +6,8 @@ import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { MatchBuilder } from "@test/data-builders/matchBuilder";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";

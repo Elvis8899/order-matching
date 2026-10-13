@@ -13,6 +13,8 @@ import { AuthService } from "@/services/authService";
 import { ExchangeService } from "@/services/exchangeService";
 import { ExchangeContext } from "@/lib/ExchangeContext";
 import { socket } from "@/services/socket";
+import { onSessionExpired, refreshAccessToken } from "@/services/api";
+import { CredentialsStorage, USER_KEY } from "@/services/credentials";
 import { defaultPaginatedResponse, usePaginatedHook } from "@/lib/utils";
 
 export function ExchangeProvider({ children }: { children: React.ReactNode }) {
@@ -92,6 +94,28 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // The socket's access token may have expired: refresh it and reconnect,
+  // once per successful connection
+  useEffect(() => {
+    let retried = false;
+    function onConnect() {
+      retried = false;
+    }
+    function onConnectError(error: Error) {
+      if (error.message !== "Unauthorized" || retried) return;
+      retried = true;
+      refreshAccessToken(CredentialsStorage.getAccessToken()).then((token) => {
+        if (token) socket.connect();
+      });
+    }
+    socket.on("connect", onConnect);
+    socket.on("connect_error", onConnectError);
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("connect_error", onConnectError);
+    };
+  }, []);
+
   useEffect(() => {
     function onStatisticsEvent(value: Stats) {
       setStats(value);
@@ -151,23 +175,46 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
   }
   useEffect(() => subscribe(refresh), [refresh]);
 
-  const handleLogin = async (username: string) => {
-    const userFromLogin = await AuthService.login(username);
+  const handleLogin = async (username: string, password: string) => {
+    const userFromLogin = await AuthService.login(username, password);
     setUser(userFromLogin);
     userId = userFromLogin.id;
     socket.connect();
     refresh();
   };
 
-  const handleLogout = () => {
-    AuthService.logout();
+  // The hooks' reset functions are stable, unlike the hook objects
+  const { reset: resetMyOrders } = myOrders;
+  const { reset: resetMyMatches } = myMatches;
+  const { reset: resetGlobalMatches } = globalMatches;
+  const resetSession = useCallback(() => {
     socket.disconnect();
     setUser(null);
     setWallet({ btc: 0, usd: 0 });
-    myOrders.reset();
-    myMatches.reset();
-    globalMatches.reset();
+    resetMyOrders();
+    resetMyMatches();
+    resetGlobalMatches();
+  }, [resetMyOrders, resetMyMatches, resetGlobalMatches]);
+
+  const handleLogout = () => {
+    void AuthService.logout();
+    resetSession();
   };
+
+  // The refresh token was rejected (expired, revoked or reused)
+  useEffect(() => onSessionExpired(resetSession), [resetSession]);
+
+  // Follow logins and logouts made in other tabs
+  useEffect(() => {
+    function onStorage(event: StorageEvent) {
+      if (event.key !== USER_KEY && event.key !== null) return;
+      const storedUser = AuthService.getUser();
+      if (!storedUser) resetSession();
+      else if (storedUser.id !== userId) setUser(storedUser);
+    }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [resetSession, userId]);
 
   const submitOrder = async (
     side: "buy" | "sell",

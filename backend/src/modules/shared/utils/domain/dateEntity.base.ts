@@ -1,4 +1,4 @@
-import { DateType } from "@shared/utils/domain/DateType";
+import { DateType } from "@shared/utils/domain/dateType";
 import { z } from "zod";
 
 export const BaseDateEntity = z.object({

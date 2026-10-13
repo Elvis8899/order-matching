@@ -1,4 +1,8 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 
 export class UserNotFoundException extends NotFoundException {
   constructor() {
@@ -16,3 +20,12 @@ export class UsernameAlreadyExistsException extends ConflictException {
 
 export const usernameAlreadyExistsException = () =>
   new UsernameAlreadyExistsException();
+
+export class RoleChangeForbiddenException extends ForbiddenException {
+  constructor() {
+    super("Apenas administradores podem alterar o papel de um usuário.");
+  }
+}
+
+export const roleChangeForbiddenException = () =>
+  new RoleChangeForbiddenException();

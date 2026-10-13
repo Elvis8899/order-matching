@@ -5,12 +5,12 @@ import {
   PaginatedOrdersQuery,
   PaginatedOrdersQueryHandler,
 } from "@exchange/queries/paginatedOrders/paginatedOrders.query";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { OrderBuilder } from "@test/data-builders/orderBuilder";
+import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

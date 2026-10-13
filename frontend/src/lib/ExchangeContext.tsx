@@ -12,7 +12,8 @@ import {
 interface ExchangeState {
   user: User | null;
   wallet: Wallet | null;
-  login: (username: string) => void;
+  // Rejects with an Error whose message can be shown to the user
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   stats: Stats;
   groupedAskOrders: PaginationHook<GroupedOrder>;

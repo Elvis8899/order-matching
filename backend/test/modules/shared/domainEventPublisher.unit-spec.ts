@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from "@nestjs/common";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { USER_CREATED } from "@user/domain/events/userCreated.event";
 import { unsafeCoerce } from "fp-ts/lib/function";

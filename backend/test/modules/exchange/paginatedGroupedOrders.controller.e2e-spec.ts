@@ -1,7 +1,7 @@
 import { OrderRepository } from "@exchange/database/order.repository.port";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { OrderBuilder } from "@test/data-builders/orderBuilder";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 import { UserRepository } from "@user/database/user.repository.port";
 

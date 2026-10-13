@@ -3,10 +3,14 @@ import { OnEvent } from "@nestjs/event-emitter";
 import {
   ConnectedSocket,
   OnGatewayConnection,
+  OnGatewayInit,
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { WsAuthService } from "@shared/socket/adapter/socketAuth.service";
+import {
+  AuthenticatedSocketData,
+  WsAuthService,
+} from "@shared/socket/adapter/socketAuth.service";
 import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({
@@ -15,14 +19,30 @@ import { Server, Socket } from "socket.io";
     origin: "*",
   },
 })
-export class SocketGateway implements OnGatewayConnection {
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   private server!: Server;
 
   constructor(private readonly wsAuthService: WsAuthService) {}
 
-  handleConnection(@ConnectedSocket() client: Socket) {
-    this.wsAuthService.onClientConnect(client);
+  // Connections without a valid access token are refused during the
+  // handshake: the client gets a connect_error and no events
+  afterInit(server: Server) {
+    server.use((socket, next) => {
+      this.wsAuthService.authenticate(socket).then(
+        () => {
+          next();
+        },
+        () => {
+          next(new Error("Unauthorized"));
+        },
+      );
+    });
+  }
+
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    const { user } = client.data as AuthenticatedSocketData;
+    await client.join([user.sub, "statistics"]);
   }
 
   @OnEvent(SOCKET_MATCH_CREATED)

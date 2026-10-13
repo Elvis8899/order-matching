@@ -1,34 +1,26 @@
-import { RequestJWTPayload } from "@auth/domain/login.entity";
+import { UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { WsAuthService } from "@shared/socket/adapter/socketAuth.service";
-import { MockAuthGuardBuilder } from "@test/data-builders/mockAuthGuardBuilder";
-import { createTestId, TableNameEnum } from "@test/util/defaultIds";
+import {
+  AuthenticatedSocketData,
+  WsAuthService,
+} from "@shared/socket/adapter/socketAuth.service";
+import { MockAuthGuardBuilder } from "@test/dataBuilders/mockAuthGuardBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 import { unsafeCoerce } from "fp-ts/lib/function";
 import { Socket } from "socket.io";
 
-describe("WsAuthService", () => {
+describe("[Unit] WsAuthService", () => {
   const authPayload = new MockAuthGuardBuilder().buildPayload();
-  const socketMock: Socket = unsafeCoerce({
-    id: createTestId(TableNameEnum.None),
-    handshake: {
-      auth: {
-        token: "token",
-      },
-    },
-    data: {},
-    join: jest.fn(),
-  });
+  const socketWithToken = (token: unknown): Socket =>
+    unsafeCoerce({ handshake: { auth: { token } }, data: {} });
+
   const moduleRef = new UnitModule(
     {
       providers: [
         WsAuthService,
         {
           provide: JwtService,
-          useValue: {
-            // Mock the 'verify' method (or 'sign', 'decode', etc.)
-            verifyAsync: jest.fn(() => authPayload),
-          },
+          useValue: { verifyAsync: jest.fn(() => authPayload) },
         },
       ],
     },
@@ -41,62 +33,36 @@ describe("WsAuthService", () => {
     await moduleRef.init();
   });
 
-  it("should be defined", () => {
-    expect(moduleRef.r.wsAuthService).toBeDefined();
+  it("Should store the token's payload in the socket", async () => {
+    // Given a socket with a valid token
+    const socket = socketWithToken("token");
+
+    // When it is authenticated
+    await moduleRef.r.wsAuthService.authenticate(socket);
+
+    // Then the socket holds the user
+    expect(moduleRef.r.jwtSpy).toHaveBeenCalledWith("token");
+    expect((socket.data as AuthenticatedSocketData).user).toEqual(authPayload);
   });
 
-  it("Should add user data to socket", async () => {
-    // When token is valid
-    // On client connect
-    moduleRef.r.wsAuthService.onClientConnect(socketMock);
-    await moduleRef.r.wsAuthService.finishInitialization(socketMock);
-    // Then user should match payload
-    expect(socketMock.data as { user: RequestJWTPayload | null }).toMatchObject(
-      { user: authPayload },
-    );
+  it("Should reject an invalid token", async () => {
+    // Given a token the JwtService rejects
+    moduleRef.r.jwtSpy.mockRejectedValueOnce(new Error("invalid"));
+
+    // Then authenticating fails
+    await expect(
+      moduleRef.r.wsAuthService.authenticate(socketWithToken("token")),
+    ).rejects.toThrow("invalid");
   });
 
-  it("Should add user data null to socket on error", async () => {
-    // When token is invalid
-    moduleRef.r.jwtSpy.mockRejectedValueOnce(new Error());
-    // On client connect
-    moduleRef.r.wsAuthService.onClientConnect(socketMock);
-    await moduleRef.r.wsAuthService.finishInitialization(socketMock);
-    // Then user data should be null
-    expect(socketMock.data as { user: RequestJWTPayload | null }).toMatchObject(
-      { user: null },
-    );
+  it.each([
+    ["missing", undefined],
+    ["empty", ""],
+    ["not a string", 1],
+  ])("Should reject a %s token without verifying it", async (_, token) => {
+    await expect(
+      moduleRef.r.wsAuthService.authenticate(socketWithToken(token)),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(moduleRef.r.jwtSpy).not.toHaveBeenCalled();
   });
-  // describe("canActivate", () => {
-  //   // Mock the ExecutionContext (request object is key)
-  //   const defaultInput = {
-  //     user: { username: "admin" },
-  //     headers: { authorization: "Bearer token" },
-  //   };
-  //   it("should return true if the token is valid", async () => {
-  //     const result = await moduleRef.r.guard.canActivate(
-  //       createMockExecutionContext(defaultInput),
-  //     );
-  //     expect(result).toBe(true);
-  //   });
-
-  //   it("should return error if there is no token", async () => {
-  //     const resultPromise = moduleRef.r.guard.canActivate(
-  //       createMockExecutionContext({
-  //         headers: {},
-  //       }),
-  //     );
-  //     await expect(resultPromise).rejects.toThrow(UnauthorizedException);
-  //   });
-
-  //   it("should return error if the token is invalid", async () => {
-  //     fnToUse = () => {
-  //       throw new Error();
-  //     };
-  //     const resultPromise = moduleRef.r.guard.canActivate(
-  //       createMockExecutionContext(defaultInput),
-  //     );
-  //     await expect(resultPromise).rejects.toThrow(UnauthorizedException);
-  //   });
-  // });
 });

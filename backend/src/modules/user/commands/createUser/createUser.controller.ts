@@ -23,7 +23,7 @@ export class CreateUserController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: "Cria um Usuário.",
-    description: `Dado um Usuário válido, ele será criado.`,
+    description: `Cadastro público. O usuário criado é sempre um cliente.`,
   })
   @ApiCreatedResponse({ description: "Usuário criado com sucesso." })
   @ApiUnprocessableEntityResponse({ description: "Usuário inválido." })

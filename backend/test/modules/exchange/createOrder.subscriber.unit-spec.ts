@@ -9,11 +9,11 @@ import {
 import { CreateOrderSubscriber } from "@exchange/subscribers/createOrder.subscriber";
 import { getQueueToken } from "@nestjs/bullmq";
 import { CqrsModule } from "@nestjs/cqrs";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { QueueNames } from "@shared/queue/queue.config";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { OrderBuilder } from "@test/data-builders/orderBuilder";
+import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 
 const exampleQueueMock = { add: jest.fn() };

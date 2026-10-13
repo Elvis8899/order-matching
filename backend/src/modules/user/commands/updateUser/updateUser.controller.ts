@@ -1,3 +1,4 @@
+import { AuthenticatedRequest, toRequester } from "@auth/domain/login.entity";
 import { AuthGuard } from "@auth/guards/auth.guard";
 import {
   Body,
@@ -6,12 +7,14 @@ import {
   HttpStatus,
   Param,
   Put,
+  Request,
   UseGuards,
 } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiTags,
@@ -19,7 +22,7 @@ import {
 } from "@nestjs/swagger";
 import { noop } from "@shared/utils/application/noop";
 import { UpdateUser } from "@user/commands/updateUser/updateUser.command";
-import { CreateUserDto } from "@user/dtos/user.dto";
+import { UpdateUserDto } from "@user/dtos/user.dto";
 
 @Controller("v1/")
 @ApiBearerAuth()
@@ -36,13 +39,21 @@ export class UpdateUserController {
   @ApiCreatedResponse({ description: "Usuário atualizado com sucesso." })
   @ApiUnprocessableEntityResponse({ description: "Usuário inválido." })
   @ApiNotFoundResponse({ description: "Usuário não encontrado." })
-  @ApiOperation({ summary: "Atualizar Usuário" })
+  @ApiForbiddenResponse({
+    description: "Apenas administradores podem alterar o papel.",
+  })
+  @ApiOperation({
+    summary: "Atualizar Usuário",
+    description:
+      "Clientes só podem atualizar a própria conta. Revoga os tokens de atualização do usuário.",
+  })
   async updateUser(
-    @Body() updateModuleDto: CreateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
     @Param("id") id: string,
+    @Request() req: AuthenticatedRequest,
   ): Promise<void> {
     return this.commandBus
-      .execute(new UpdateUser(updateModuleDto, id))
+      .execute(new UpdateUser(updateUserDto, id, toRequester(req.user)))
       .then(noop);
   }
 }

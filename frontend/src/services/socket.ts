@@ -1,6 +1,5 @@
 import { io } from "socket.io-client";
-
-const TOKEN_KEY = "exchange_token";
+import { CredentialsStorage } from "@/services/credentials";
 
 // "undefined" means the URL will be computed from the `window.location` object
 const URL =
@@ -9,7 +8,6 @@ const URL =
 export const socket = io(URL, {
   path: "/v1/socket.io",
   autoConnect: false,
-  auth: {
-    token: localStorage.getItem(TOKEN_KEY),
-  },
+  // Read on every (re)connection, so it sends the current access token
+  auth: (cb) => cb({ token: CredentialsStorage.getAccessToken() }),
 });

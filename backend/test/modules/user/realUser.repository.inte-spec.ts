@@ -4,12 +4,13 @@ import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { UserBuilder } from "@test/data-builders/userBuilder";
+import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";
 import { RealUserRepository } from "@user/database/realUser.repository";
 import { UserRepository } from "@user/database/user.repository.port";
+import { UserRoleEnum } from "@user/domain/user.entity";
 
 const inteM = new IntegrationModule(
   [PrismaService, { provide: UserRepository, useClass: RealUserRepository }],
@@ -130,5 +131,52 @@ describe("[Integration] User repository", () => {
     expect(resultPaginated.count).toBe(0);
     expect(resultPaginated.data.length).toBe(0);
     expect(resultAll.length).toBe(0);
+  });
+
+  it("Saves changes to the password and role", async () => {
+    //Given an existing user
+    const user = userBuilder.build();
+    await executeTask(inteM.r.userRepository.save(user));
+
+    //When they are saved with a new password and role
+    await executeTask(
+      inteM.r.userRepository.save({
+        ...user,
+        password: "new-hash",
+        role: UserRoleEnum.Admin,
+      }),
+    );
+
+    //Then both are stored
+    const stored = await inteM.r.prismaService.user.findUnique({
+      where: { id: user.id },
+    });
+    expect(stored?.password).toBe("new-hash");
+    expect(stored?.role).toBe(UserRoleEnum.Admin);
+  });
+
+  it("Increments the token version", async () => {
+    //Given an existing user
+    const user = userBuilder.build();
+    await executeTask(inteM.r.userRepository.save(user));
+
+    //When their refresh tokens are revoked
+    await executeTask(inteM.r.userRepository.incrementTokenVersion(user.id));
+
+    //Then the token version is incremented
+    const stored = await inteM.r.prismaService.user.findUnique({
+      where: { id: user.id },
+    });
+    expect(stored?.tokenVersion).toBe(user.tokenVersion + 1);
+  });
+
+  it("Ignores token version increment for unknown user", async () => {
+    await expect(
+      executeTask(
+        inteM.r.userRepository.incrementTokenVersion(
+          createTestId(TableNameEnum.User, 9),
+        ),
+      ),
+    ).resolves.toBeUndefined();
   });
 });

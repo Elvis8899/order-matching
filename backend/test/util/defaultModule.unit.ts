@@ -1,6 +1,6 @@
 import { ModuleMetadata, Provider } from "@nestjs/common";
 import { Test, TestingModule, TestingModuleBuilder } from "@nestjs/testing";
-import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
+import { FakeLoggerService } from "@shared/logger/adapters/fake/fakeLogger.service";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { PinoLogger } from "nestjs-pino";
 
