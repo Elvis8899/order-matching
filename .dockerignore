@@ -1,0 +1,8 @@
+# Context of the production backend image (.docker/Dockerfile.backend).
+# The dev images use backend/ and frontend/ as their contexts instead.
+.git
+frontend
+**/node_modules
+backend/dist
+backend/coverage
+backend/.docker

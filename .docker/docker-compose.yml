@@ -20,7 +20,7 @@ services:
   app:
     build:
       context: ..
-      dockerfile: ../backend/.docker/Dockerfile
+      dockerfile: .docker/Dockerfile.backend
     container_name: exchange-api-prod
     hostname: exchange-api
     restart: always
@@ -52,7 +52,7 @@ services:
   migrate-deploy:
     build:
       context: ..
-      dockerfile: ../backend/.docker/Dockerfile
+      dockerfile: .docker/Dockerfile.backend
       target: migrate
     container_name: migrate-deploy-prod
     image: exchange-api-deploy
