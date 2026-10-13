@@ -55,6 +55,57 @@ jobs:
           yarn build
           yarn test:cov
 
+      - name: Upload coverage summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage/coverage-summary.json
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./frontend/.nvmrc
+          cache: "yarn"
+          cache-dependency-path: ./frontend/yarn.lock
+
+      - name: Lint, test and build
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile
+          yarn lint
+          yarn test:cov
+          yarn build
+
+      - name: Upload coverage summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/coverage-summary.json
+
+  badges:
+    needs: [build, frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download backend coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage
+
+      - name: Download frontend coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+
       - name: 🔴 Delete remote badges branch
         # The branch does not exist on the first run
         run: git push origin --delete badges || true
@@ -62,6 +113,8 @@ jobs:
       - name: ➕ Create badges branch
         run: git checkout -b badges
 
+      # The part of the path matched by ** names each badge folder:
+      # badges/backend and badges/frontend
       - name: ⚙️ Generating coverage badges
         uses: jpb06/coverage-badges-action@latest
         with:
