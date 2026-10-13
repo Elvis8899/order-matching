@@ -21,13 +21,21 @@ services:
       context: ../backend
       dockerfile: ../.docker/Dockerfile.backend.dev
     env_file: ../backend/.env.dev
+    # Run as the host user so files written to the mounted source folder
+    # (node_modules, dist, migrations) are not owned by root. The default
+    # matches the image's node user; set HOST_UID/HOST_GID if yours differ.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      YARN_CACHE_FOLDER: /usr/src/app/.docker/.yarn-cache
     container_name: exchange-dev-api
     image: elvis/exchange-api:latest
     # Uncomment this line in case you are in M1
     # platform: linux/amd64
     volumes:
       - ../backend/:/usr/src/app
-      - ./util:/usr/src/app/.docker/util
+      # Outside the mounted source folder: Docker would create the mount
+      # point there as root
+      - ./util:/usr/src/util
     # ports:
     #   - "3000:3000"
     networks:
@@ -77,6 +85,8 @@ services:
       dockerfile: ../.docker/Dockerfile.frontend.dev
       args:
         - NODE_ENV=development
+    # Same as app: files it writes (node_modules/.vite) stay the host user's
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     container_name: exchange-dev-frontend
     image: elvis/exchange-frontend:latest
     volumes:
