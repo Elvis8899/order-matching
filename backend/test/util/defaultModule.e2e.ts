@@ -14,7 +14,7 @@ import { QueueNames } from "@src/modules/shared/queue/queue.config";
 import { BullQueueModule } from "@src/modules/shared/queue/queue.module";
 import { MockAuthGuardBuilder } from "@test/data-builders/mockAuthGuardBuilder";
 import { PinoLogger } from "nestjs-pino";
-import * as request from "supertest";
+import request from "supertest";
 
 @Module({})
 export class EmptyModule {}

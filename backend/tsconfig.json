@@ -26,10 +26,12 @@
     "paths": {
       "@src/*": ["./src/*"],
       "@test/*": ["./test/*"],
+      "@configs/*": ["./src/shared/configs/*"],
       "@shared/*": ["./src/modules/shared/*"],
       "@auth/*": ["./src/modules/auth/*"],
       "@user/*": ["./src/modules/user/*"],
-      "@exchange/*": ["./src/modules/exchange/*"]
+      "@rental/*": ["./src/modules/rental/*"],
+      "@book/*": ["./src/modules/book/*"]
     }
   },
   "exclude": ["node_modules", "dist"]
