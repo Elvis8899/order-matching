@@ -1,4 +1,7 @@
 import { AuthGuard } from "@auth/guards/auth.guard";
+import { Order } from "@exchange/domain/order.entity";
+import { PaginatedOrderResponseDto } from "@exchange/dtos/order.dto";
+import { PaginatedOrdersQuery } from "@exchange/queries/paginatedOrders/paginatedOrders.query";
 import { Controller, Get, HttpStatus, Query, UseGuards } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import {
@@ -9,9 +12,6 @@ import {
 } from "@nestjs/swagger";
 import { Paginated } from "@shared/utils/database/repository.port";
 import { PaginatedQueryRequestDto } from "@shared/utils/dtos/paginated-query.request.dto";
-import { Order } from "@src/modules/exchange/domain/order.entity";
-import { PaginatedOrderResponseDto } from "@src/modules/exchange/dtos/order.dto";
-import { PaginatedOrdersQuery } from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.query";
 
 @Controller("v1/")
 @ApiTags("Pedidos")

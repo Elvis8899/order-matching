@@ -1,12 +1,12 @@
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { walletNotFoundException } from "@exchange/domain/exchange.errors";
+import { Wallet } from "@exchange/domain/wallet.entity";
 import { IQuery, IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, RTE } from "@shared/utils/application/monads";
 import { performRTE } from "@shared/utils/application/perform";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { walletNotFoundException } from "@src/modules/exchange/domain/exchange.errors";
-import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
-import { UUID } from "@src/modules/shared/uuid/entities/uuid";
+import { UUID } from "@shared/uuid/entities/uuid";
 import { PinoLogger } from "nestjs-pino";
 
 export class GetWalletByIdQuery implements IQuery {

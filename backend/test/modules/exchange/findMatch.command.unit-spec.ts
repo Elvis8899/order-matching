@@ -1,25 +1,22 @@
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
-import { executeTask } from "@shared/utils/application/executeTask";
 import {
   FindMatch,
   FindMatchHandler,
-} from "@src/modules/exchange/commands/findMatch/findMatch.command";
-import { FakeMatchRepository } from "@src/modules/exchange/database/fakeMatch.repository";
-import { FakeOrderRepository } from "@src/modules/exchange/database/fakeOrder.repository";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
+} from "@exchange/commands/findMatch/findMatch.command";
+import { FakeMatchRepository } from "@exchange/database/fakeMatch.repository";
+import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { MatchRepository } from "@exchange/database/match.repository.port";
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
 import {
   MATCH_MAKER_FEE,
   MATCH_TAKER_FEE,
-} from "@src/modules/exchange/domain/match.entity";
-import {
-  OrderSideEnum,
-  OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import { A, TE } from "@src/modules/shared/utils/application/monads";
+} from "@exchange/domain/match.entity";
+import { OrderSideEnum, OrderStatusEnum } from "@exchange/domain/order.entity";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
+import { A, TE } from "@shared/utils/application/monads";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";

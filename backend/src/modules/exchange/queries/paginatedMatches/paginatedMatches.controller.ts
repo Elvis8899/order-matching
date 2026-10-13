@@ -1,4 +1,7 @@
 import { AuthGuard } from "@auth/guards/auth.guard";
+import { Match } from "@exchange/domain/match.entity";
+import { PaginatedMatchesResponseDto } from "@exchange/dtos/match.dto";
+import { PaginatedMatchesQuery } from "@exchange/queries/paginatedMatches/paginatedMatches.query";
 import { Controller, Get, HttpStatus, Query, UseGuards } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import {
@@ -9,9 +12,6 @@ import {
 } from "@nestjs/swagger";
 import { Paginated } from "@shared/utils/database/repository.port";
 import { PaginatedQueryRequestDto } from "@shared/utils/dtos/paginated-query.request.dto";
-import { Match } from "@src/modules/exchange/domain/match.entity";
-import { PaginatedMatchesResponseDto } from "@src/modules/exchange/dtos/match.dto";
-import { PaginatedMatchesQuery } from "@src/modules/exchange/queries/paginatedMatches/paginatedMatches.query";
 
 @Controller("v1/")
 @ApiTags("Transações")

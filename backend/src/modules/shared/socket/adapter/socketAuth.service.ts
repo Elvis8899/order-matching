@@ -1,6 +1,6 @@
+import { RequestJWTPayload } from "@auth/domain/login.entity";
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { RequestJWTPayload } from "@src/modules/auth/domain/login.entity";
 import { Socket } from "socket.io";
 
 @Injectable()

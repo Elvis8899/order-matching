@@ -1,12 +1,12 @@
-import { executeTask } from "@shared/utils/application/executeTask";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { WalletNotFoundException } from "@src/modules/exchange/domain/exchange.errors";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { WalletNotFoundException } from "@exchange/domain/exchange.errors";
 import {
   GetWalletByIdQuery,
   GetWalletByIdQueryHandler,
-} from "@src/modules/exchange/queries/getWalletById/getWalletById.query";
-import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
+} from "@exchange/queries/getWalletById/getWalletById.query";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";

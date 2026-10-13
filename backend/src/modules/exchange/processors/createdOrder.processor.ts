@@ -1,8 +1,8 @@
+import { FindMatch } from "@exchange/commands/findMatch/findMatch.command";
 import { OnWorkerEvent, Processor, WorkerHost } from "@nestjs/bullmq";
 import { Injectable } from "@nestjs/common";
 import { CommandBus } from "@nestjs/cqrs";
-import { FindMatch } from "@src/modules/exchange/commands/findMatch/findMatch.command";
-import { QueueNames } from "@src/modules/shared/queue/queue.config";
+import { QueueNames } from "@shared/queue/queue.config";
 import { Job } from "bullmq";
 import { PinoLogger } from "nestjs-pino";
 

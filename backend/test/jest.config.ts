@@ -19,12 +19,10 @@ const config: Config = {
   moduleNameMapper: {
     "^@src/(.*)$": "<rootDir>/src/$1",
     "^@test/(.*)$": "<rootDir>/test/$1",
-    "^@configs/(.*)$": "<rootDir>/src/modules/shared/configs/$1",
     "^@shared/(.*)$": "<rootDir>/src/modules/shared/$1",
     "^@user/(.*)$": "<rootDir>/src/modules/user/$1",
     "^@auth/(.*)$": "<rootDir>/src/modules/auth/$1",
-    "^@book/(.*)$": "<rootDir>/src/modules/book/$1",
-    "^@rental/(.*)$": "<rootDir>/src/modules/rental/$1",
+    "^@exchange/(.*)$": "<rootDir>/src/modules/exchange/$1",
   },
   transformIgnorePatterns: ["node_modules/(?!(uuid)/)"],
   coverageReporters: ["json", "text-summary", "lcov", "clover", "json-summary"],

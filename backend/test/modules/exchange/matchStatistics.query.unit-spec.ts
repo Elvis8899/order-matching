@@ -1,11 +1,11 @@
-import { executeTask } from "@shared/utils/application/executeTask";
-import { FakeMatchRepository } from "@src/modules/exchange/database/fakeMatch.repository";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
+import { FakeMatchRepository } from "@exchange/database/fakeMatch.repository";
+import { MatchRepository } from "@exchange/database/match.repository.port";
 import {
   MatchStatisticsQuery,
   MatchStatisticsQueryHandler,
-} from "@src/modules/exchange/queries/matchStatistics/matchStatistics.query";
-import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
+} from "@exchange/queries/matchStatistics/matchStatistics.query";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
 import { MatchBuilder } from "@test/data-builders/matchBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

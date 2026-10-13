@@ -1,29 +1,29 @@
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
-import { executeTask } from "@shared/utils/application/executeTask";
 import {
   CancelOrder,
   CancelOrderHandler,
-} from "@src/modules/exchange/commands/cancelOrder/cancelOrder.command";
-import { FakeOrderRepository } from "@src/modules/exchange/database/fakeOrder.repository";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { OrderNotFoundException } from "@src/modules/exchange/domain/exchange.errors";
+} from "@exchange/commands/cancelOrder/cancelOrder.command";
+import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { OrderNotFoundException } from "@exchange/domain/exchange.errors";
 import {
   Order,
   OrderSideEnum,
   OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
-import { FPF, O } from "@src/modules/shared/utils/application/monads";
-import { FakeUserRepository } from "@src/modules/user/database/fakeUser.repository";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
+} from "@exchange/domain/order.entity";
+import { Wallet } from "@exchange/domain/wallet.entity";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
+import { FPF, O } from "@shared/utils/application/monads";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
+import { FakeUserRepository } from "@user/database/fakeUser.repository";
+import { UserRepository } from "@user/database/user.repository.port";
 
 //Adapters
 

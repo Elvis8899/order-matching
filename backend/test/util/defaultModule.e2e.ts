@@ -1,4 +1,5 @@
 import { AuthGuard } from "@auth/guards/auth.guard";
+import { CreatedOrderProcessor } from "@exchange/processors/createdOrder.processor";
 import { getQueueToken } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
 import {
@@ -7,11 +8,10 @@ import {
 } from "@nestjs/platform-fastify";
 import { Test, TestingModule } from "@nestjs/testing";
 import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
+import { PrismaService } from "@shared/prisma/adapter/prisma.service";
+import { QueueNames } from "@shared/queue/queue.config";
+import { BullQueueModule } from "@shared/queue/queue.module";
 import { AppModule } from "@src/app.module";
-import { CreatedOrderProcessor } from "@src/modules/exchange/processors/createdOrder.processor";
-import { PrismaService } from "@src/modules/shared/prisma/adapter/prisma.service";
-import { QueueNames } from "@src/modules/shared/queue/queue.config";
-import { BullQueueModule } from "@src/modules/shared/queue/queue.module";
 import { MockAuthGuardBuilder } from "@test/data-builders/mockAuthGuardBuilder";
 import { PinoLogger } from "nestjs-pino";
 import request from "supertest";

@@ -1,9 +1,6 @@
 import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
-import {
-  bullRootModuleOptions,
-  QueueNames,
-} from "@src/modules/shared/queue/queue.config";
+import { bullRootModuleOptions, QueueNames } from "@shared/queue/queue.config";
 
 const queues = [
   BullModule.registerQueue({

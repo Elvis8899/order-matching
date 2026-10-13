@@ -1,5 +1,5 @@
-import { SocketGateway } from "@src/modules/shared/socket/adapter/socket.gateway";
-import { WsAuthService } from "@src/modules/shared/socket/adapter/socketAuth.service";
+import { SocketGateway } from "@shared/socket/adapter/socket.gateway";
+import { WsAuthService } from "@shared/socket/adapter/socketAuth.service";
 import { UnitModule } from "@test/util/defaultModule.unit";
 import { unsafeCoerce } from "fp-ts/lib/function";
 import { Socket } from "socket.io";

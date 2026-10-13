@@ -1,6 +1,6 @@
-# Library Backend
+# Exchange Backend
 
-This is a library for generating a NestJS backend.
+The NestJS API of the exchange app.
 
 ## Development server
 

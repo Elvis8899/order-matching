@@ -1,14 +1,14 @@
 import { LoginModule } from "@auth/login.module";
+import { ExchangeModule } from "@exchange/exchange.module";
 import { DynamicModule, ForwardReference, Module, Type } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { CqrsModule } from "@nestjs/cqrs";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { LoggerModule } from "@shared/logger/logger.module";
 import { PrismaModule } from "@shared/prisma/prisma.module";
+import { QueueModule } from "@shared/queue/queue.module";
+import { SocketModule } from "@shared/socket/socket.module";
 import { AppController } from "@src/app.controller";
-import { ExchangeModule } from "@src/modules/exchange/exchange.module";
-import { QueueModule } from "@src/modules/shared/queue/queue.module";
-import { SocketModule } from "@src/modules/shared/socket/socket.module";
 import { UserModule } from "@user/user.module";
 
 type NestModuleImport =

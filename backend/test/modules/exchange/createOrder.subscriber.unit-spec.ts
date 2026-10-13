@@ -1,18 +1,18 @@
+import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import {
+  ORDER_CREATED,
+  OrderCreatedEvent,
+} from "@exchange/domain/events/orderCreated.event";
+import { CreateOrderSubscriber } from "@exchange/subscribers/createOrder.subscriber";
 import { getQueueToken } from "@nestjs/bullmq";
 import { CqrsModule } from "@nestjs/cqrs";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { QueueNames } from "@shared/queue/queue.config";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { FakeOrderRepository } from "@src/modules/exchange/database/fakeOrder.repository";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import {
-  ORDER_CREATED,
-  OrderCreatedEvent,
-} from "@src/modules/exchange/domain/events/orderCreated.event";
-import { CreateOrderSubscriber } from "@src/modules/exchange/subscribers/createOrder.subscriber";
-import { QueueNames } from "@src/modules/shared/queue/queue.config";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

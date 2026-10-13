@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { QueryBus } from "@nestjs/cqrs";
-import { OnEvent } from "@nestjs/event-emitter";
 import {
   MATCH_CREATED,
   MatchCreatedEvent,
   SOCKET_MATCH_CREATED,
-} from "@src/modules/exchange/domain/events/matchCreated.event";
-import { MatchStatistics } from "@src/modules/exchange/domain/match.entity";
-import { MatchStatisticsQuery } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.query";
-import { DomainEventPublisher } from "@src/modules/shared/domain-event-publisher/adapters/domainEventPublisher";
-import { executeTask } from "@src/modules/shared/utils/application/executeTask";
+} from "@exchange/domain/events/matchCreated.event";
+import { MatchStatistics } from "@exchange/domain/match.entity";
+import { MatchStatisticsQuery } from "@exchange/queries/matchStatistics/matchStatistics.query";
+import { Injectable } from "@nestjs/common";
+import { QueryBus } from "@nestjs/cqrs";
+import { OnEvent } from "@nestjs/event-emitter";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { executeTask } from "@shared/utils/application/executeTask";
 
 @Injectable()
 export class CreateMatchSubscriber {

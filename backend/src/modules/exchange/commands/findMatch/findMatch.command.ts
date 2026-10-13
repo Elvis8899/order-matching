@@ -1,30 +1,30 @@
-import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { executeTask } from "@shared/utils/application/executeTask";
-import { A, Apply, FPF, RE, RTE } from "@shared/utils/application/monads";
-import { performRTE } from "@shared/utils/application/perform";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
+import { MatchRepository } from "@exchange/database/match.repository.port";
 import {
   OrderFindQuery,
   OrderRepository,
-} from "@src/modules/exchange/database/order.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { MATCH_CREATED } from "@src/modules/exchange/domain/events/matchCreated.event";
-import { orderNotFoundException } from "@src/modules/exchange/domain/exchange.errors";
+} from "@exchange/database/order.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { MATCH_CREATED } from "@exchange/domain/events/matchCreated.event";
+import { orderNotFoundException } from "@exchange/domain/exchange.errors";
 import {
   Match,
   MATCH_MAKER_FEE,
   MATCH_TAKER_FEE,
-} from "@src/modules/exchange/domain/match.entity";
+} from "@exchange/domain/match.entity";
 import {
   Order,
   OrderSideEnum,
   OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
-import { fromInputRE } from "@src/modules/shared/utils/application/fromInput";
-import { noop } from "@src/modules/shared/utils/application/noop";
-import { RealUUIDGeneratorService } from "@src/modules/shared/uuid/adapters/secondaries/realUUIDGenerator.service";
+} from "@exchange/domain/order.entity";
+import { Wallet } from "@exchange/domain/wallet.entity";
+import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { executeTask } from "@shared/utils/application/executeTask";
+import { fromInputRE } from "@shared/utils/application/fromInput";
+import { A, Apply, FPF, RE, RTE } from "@shared/utils/application/monads";
+import { noop } from "@shared/utils/application/noop";
+import { performRTE } from "@shared/utils/application/perform";
+import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { PinoLogger } from "nestjs-pino";
 
 type PartialMatch = Omit<Match, "id" | "createdAt" | "updatedAt">;

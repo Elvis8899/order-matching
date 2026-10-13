@@ -1,3 +1,10 @@
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { ORDER_CREATED } from "@exchange/domain/events/orderCreated.event";
+import { insufficientWalletFundsException } from "@exchange/domain/exchange.errors";
+import { Order, OrderSideEnum } from "@exchange/domain/order.entity";
+import { Wallet } from "@exchange/domain/wallet.entity";
+import { CreateOrderDto } from "@exchange/dtos/order.dto";
 import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
@@ -5,20 +12,10 @@ import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, O, RE, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { ORDER_CREATED } from "@src/modules/exchange/domain/events/orderCreated.event";
-import { insufficientWalletFundsException } from "@src/modules/exchange/domain/exchange.errors";
-import {
-  Order,
-  OrderSideEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
-import { CreateOrderDto } from "@src/modules/exchange/dtos/order.dto";
-import { RealUUIDGeneratorService } from "@src/modules/shared/uuid/adapters/secondaries/realUUIDGenerator.service";
-import { UUID } from "@src/modules/shared/uuid/entities/uuid";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
-import { userNotFoundException } from "@src/modules/user/domain/user.errors";
+import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
+import { UUID } from "@shared/uuid/entities/uuid";
+import { UserRepository } from "@user/database/user.repository.port";
+import { userNotFoundException } from "@user/domain/user.errors";
 import { PinoLogger } from "nestjs-pino";
 
 export class CreateOrder implements ICommand {

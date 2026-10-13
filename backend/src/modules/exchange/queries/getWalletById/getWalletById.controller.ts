@@ -1,3 +1,7 @@
+import { AuthenticatedRequest } from "@auth/domain/login.entity";
+import { AuthGuard } from "@auth/guards/auth.guard";
+import { WalletDto } from "@exchange/dtos/wallet.dto";
+import { GetWalletByIdQuery } from "@exchange/queries/getWalletById/getWalletById.query";
 import {
   Controller,
   Get,
@@ -13,10 +17,6 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { AuthenticatedRequest } from "@src/modules/auth/domain/login.entity";
-import { AuthGuard } from "@src/modules/auth/guards/auth.guard";
-import { WalletDto } from "@src/modules/exchange/dtos/wallet.dto";
-import { GetWalletByIdQuery } from "@src/modules/exchange/queries/getWalletById/getWalletById.query";
 
 @Controller("v1/")
 @ApiBearerAuth()

@@ -1,16 +1,13 @@
-import { executeTask } from "@shared/utils/application/executeTask";
-import { FakeOrderRepository } from "@src/modules/exchange/database/fakeOrder.repository";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import {
-  Order,
-  OrderSideEnum,
-} from "@src/modules/exchange/domain/order.entity";
+import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { Order, OrderSideEnum } from "@exchange/domain/order.entity";
 import {
   PaginatedGroupedOrdersQuery,
   PaginatedGroupedOrdersQueryHandler,
-} from "@src/modules/exchange/queries/paginatedGroupedOrders/paginatedGroupedOrders.query";
-import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
-import { A } from "@src/modules/shared/utils/application/monads";
+} from "@exchange/queries/paginatedGroupedOrders/paginatedGroupedOrders.query";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
+import { A } from "@shared/utils/application/monads";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

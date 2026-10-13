@@ -1,11 +1,11 @@
-import { FPF } from "@shared/utils/application/monads";
 import {
   MatchCreatedEvent,
   SocketMatchCreatedEvent,
-} from "@src/modules/exchange/domain/events/matchCreated.event";
-import { OrderCanceledEvent } from "@src/modules/exchange/domain/events/orderCanceled.event";
-import { OrderCreatedEvent } from "@src/modules/exchange/domain/events/orderCreated.event";
-import { WalletCreatedEvent } from "@src/modules/exchange/domain/events/walletCreated.event";
+} from "@exchange/domain/events/matchCreated.event";
+import { OrderCanceledEvent } from "@exchange/domain/events/orderCanceled.event";
+import { OrderCreatedEvent } from "@exchange/domain/events/orderCreated.event";
+import { WalletCreatedEvent } from "@exchange/domain/events/walletCreated.event";
+import { FPF } from "@shared/utils/application/monads";
 export const AllExchangeEvents = FPF.tuple(
   OrderCreatedEvent,
   MatchCreatedEvent,

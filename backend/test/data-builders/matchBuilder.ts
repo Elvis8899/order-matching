@@ -1,5 +1,5 @@
+import { Match } from "@exchange/domain/match.entity";
 import { UUID } from "@shared/uuid/entities/uuid";
-import { Match } from "@src/modules/exchange/domain/match.entity";
 import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { z } from "zod";

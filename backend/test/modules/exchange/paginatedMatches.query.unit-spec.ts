@@ -1,14 +1,14 @@
+import { FakeMatchRepository } from "@exchange/database/fakeMatch.repository";
+import { MatchRepository } from "@exchange/database/match.repository.port";
+import {
+  PaginatedMatchesQuery,
+  PaginatedMatchesQueryHandler,
+} from "@exchange/queries/paginatedMatches/paginatedMatches.query";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { FakeMatchRepository } from "@src/modules/exchange/database/fakeMatch.repository";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
-import {
-  PaginatedMatchesQuery,
-  PaginatedMatchesQueryHandler,
-} from "@src/modules/exchange/queries/paginatedMatches/paginatedMatches.query";
-import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
 import { MatchBuilder } from "@test/data-builders/matchBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";

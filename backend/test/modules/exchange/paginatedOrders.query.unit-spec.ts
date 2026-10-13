@@ -1,18 +1,15 @@
+import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { OrderSideEnum, OrderStatusEnum } from "@exchange/domain/order.entity";
+import {
+  PaginatedOrdersQuery,
+  PaginatedOrdersQueryHandler,
+} from "@exchange/queries/paginatedOrders/paginatedOrders.query";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { FakeOrderRepository } from "@src/modules/exchange/database/fakeOrder.repository";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import {
-  OrderSideEnum,
-  OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import {
-  PaginatedOrdersQuery,
-  PaginatedOrdersQueryHandler,
-} from "@src/modules/exchange/queries/paginatedOrders/paginatedOrders.query";
-import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";

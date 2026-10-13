@@ -1,18 +1,18 @@
+import { RealWalletRepository } from "@exchange/database/realWallet.repository";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
 import { InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "@shared/prisma/adapter/prisma.service";
 import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { RealWalletRepository } from "@src/modules/exchange/database/realWallet.repository";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { RealUserRepository } from "@src/modules/user/database/realUser.repository";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";
+import { RealUserRepository } from "@user/database/realUser.repository";
+import { UserRepository } from "@user/database/user.repository.port";
 
 const inteM = new IntegrationModule(
   [

@@ -1,9 +1,9 @@
+import { MatchRepository } from "@exchange/database/match.repository.port";
+import { MatchStatistics } from "@exchange/domain/match.entity";
 import { IQuery, IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { FPF } from "@shared/utils/application/monads";
 import { performRTE } from "@shared/utils/application/perform";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
-import { MatchStatistics } from "@src/modules/exchange/domain/match.entity";
 import { PinoLogger } from "nestjs-pino";
 
 export class MatchStatisticsQuery implements IQuery {}

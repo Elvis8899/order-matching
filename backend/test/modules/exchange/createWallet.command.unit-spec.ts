@@ -1,18 +1,18 @@
-import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
-import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
-import { executeTask } from "@shared/utils/application/executeTask";
 import {
   CreateWallet,
   CreateWalletHandler,
-} from "@src/modules/exchange/commands/createWallet/createWallet.command";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { WalletAlreadyExistsException } from "@src/modules/exchange/domain/exchange.errors";
-import { FakeUserRepository } from "@src/modules/user/database/fakeUser.repository";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
+} from "@exchange/commands/createWallet/createWallet.command";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { WalletAlreadyExistsException } from "@exchange/domain/exchange.errors";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
+import { executeTask } from "@shared/utils/application/executeTask";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
+import { FakeUserRepository } from "@user/database/fakeUser.repository";
+import { UserRepository } from "@user/database/user.repository.port";
 
 //Adapters
 

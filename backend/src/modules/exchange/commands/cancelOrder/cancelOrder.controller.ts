@@ -1,4 +1,6 @@
+import { AuthenticatedRequest } from "@auth/domain/login.entity";
 import { AuthGuard } from "@auth/guards/auth.guard";
+import { CancelOrder } from "@exchange/commands/cancelOrder/cancelOrder.command";
 import {
   Controller,
   Delete,
@@ -18,8 +20,6 @@ import {
   ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger";
 import { noop } from "@shared/utils/application/noop";
-import { AuthenticatedRequest } from "@src/modules/auth/domain/login.entity";
-import { CancelOrder } from "@src/modules/exchange/commands/cancelOrder/cancelOrder.command";
 
 @Controller("v1/")
 @ApiBearerAuth()

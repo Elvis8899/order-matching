@@ -1,7 +1,7 @@
 import { InternalServerErrorException } from "@nestjs/common";
-import { DomainEventPublisher } from "@src/modules/shared/domain-event-publisher/adapters/domainEventPublisher";
-import { executeTask } from "@src/modules/shared/utils/application/executeTask";
-import { USER_CREATED } from "@src/modules/user/domain/events/userCreated.event";
+import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
+import { executeTask } from "@shared/utils/application/executeTask";
+import { USER_CREATED } from "@user/domain/events/userCreated.event";
 import { unsafeCoerce } from "fp-ts/lib/function";
 
 const eventEmitter2Mock = {

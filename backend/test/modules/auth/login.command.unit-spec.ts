@@ -2,13 +2,13 @@ import {
   LoginCommand,
   LoginCommandHandler,
 } from "@auth/commands/login/login.command";
+import { WrongAuthException } from "@auth/domain/auth.errors";
 import { UnprocessableEntityException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { FakeLoggerService } from "@shared/logger/adapters/fake/FakeLogger.service";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
-import { WrongAuthException } from "@src/modules/auth/domain/auth.errors";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";

@@ -1,4 +1,4 @@
-import { MatchStatistics } from "@src/modules/exchange/domain/match.entity";
+import { MatchStatistics } from "@exchange/domain/match.entity";
 import { z } from "zod";
 
 export const MATCH_CREATED = "match.created";

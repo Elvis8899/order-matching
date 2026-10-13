@@ -1,17 +1,17 @@
-import { O, TE } from "@shared/utils/application/monads";
-import {
-  Paginated,
-  RepositoryDefaultPort,
-} from "@shared/utils/database/repository.port";
-import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 import {
   GroupedOrder,
   Order,
   OrderSideEnum,
   OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import { DateType } from "@src/modules/shared/utils/domain/DateType";
-import { UUID } from "@src/modules/shared/uuid/entities/uuid";
+} from "@exchange/domain/order.entity";
+import { O, TE } from "@shared/utils/application/monads";
+import {
+  Paginated,
+  RepositoryDefaultPort,
+} from "@shared/utils/database/repository.port";
+import { DateType } from "@shared/utils/domain/DateType";
+import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
+import { UUID } from "@shared/uuid/entities/uuid";
 import z from "zod";
 
 export const OrderFindQuery = z.object({

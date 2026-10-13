@@ -1,3 +1,7 @@
+import { AuthenticatedRequest } from "@auth/domain/login.entity";
+import { AuthGuard } from "@auth/guards/auth.guard";
+import { CreateOrder } from "@exchange/commands/createOrder/createOrder.command";
+import { CreateOrderDto } from "@exchange/dtos/order.dto";
 import {
   Body,
   Controller,
@@ -16,10 +20,6 @@ import {
   ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger";
 import { noop } from "@shared/utils/application/noop";
-import { AuthenticatedRequest } from "@src/modules/auth/domain/login.entity";
-import { AuthGuard } from "@src/modules/auth/guards/auth.guard";
-import { CreateOrder } from "@src/modules/exchange/commands/createOrder/createOrder.command";
-import { CreateOrderDto } from "@src/modules/exchange/dtos/order.dto";
 
 @Controller("v1/")
 @ApiBearerAuth()

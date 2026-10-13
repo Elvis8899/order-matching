@@ -4,12 +4,12 @@ import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { RealUserRepository } from "@src/modules/user/database/realUser.repository";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";
+import { RealUserRepository } from "@user/database/realUser.repository";
+import { UserRepository } from "@user/database/user.repository.port";
 
 const inteM = new IntegrationModule(
   [PrismaService, { provide: UserRepository, useClass: RealUserRepository }],

@@ -1,11 +1,11 @@
-import { InjectQueue } from "@nestjs/bullmq";
-import { Injectable } from "@nestjs/common";
-import { OnEvent } from "@nestjs/event-emitter";
 import {
   ORDER_CREATED,
   OrderCreatedEvent,
-} from "@src/modules/exchange/domain/events/orderCreated.event";
-import { JobNames, QueueNames } from "@src/modules/shared/queue/queue.config";
+} from "@exchange/domain/events/orderCreated.event";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Injectable } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
+import { JobNames, QueueNames } from "@shared/queue/queue.config";
 import { Queue } from "bullmq";
 
 @Injectable()

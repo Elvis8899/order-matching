@@ -1,17 +1,17 @@
+import { FakeMatchRepository } from "@exchange/database/fakeMatch.repository";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { MatchRepository } from "@exchange/database/match.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import {
+  MATCH_CREATED,
+  MatchCreatedEvent,
+} from "@exchange/domain/events/matchCreated.event";
+import { MatchStatisticsQueryHandler } from "@exchange/queries/matchStatistics/matchStatistics.query";
+import { CreateMatchSubscriber } from "@exchange/subscribers/createMatch.subscriber";
 import { CqrsModule } from "@nestjs/cqrs";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { FakeMatchRepository } from "@src/modules/exchange/database/fakeMatch.repository";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import {
-  MATCH_CREATED,
-  MatchCreatedEvent,
-} from "@src/modules/exchange/domain/events/matchCreated.event";
-import { MatchStatisticsQueryHandler } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.query";
-import { CreateMatchSubscriber } from "@src/modules/exchange/subscribers/createMatch.subscriber";
 import { MatchBuilder } from "@test/data-builders/matchBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 

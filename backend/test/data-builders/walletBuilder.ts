@@ -1,7 +1,7 @@
+import { Wallet } from "@exchange/domain/wallet.entity";
+import { CreateWalletDto } from "@exchange/dtos/wallet.dto";
 import { FPF } from "@shared/utils/application/monads";
 import { UUID } from "@shared/uuid/entities/uuid";
-import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
-import { CreateWalletDto } from "@src/modules/exchange/dtos/wallet.dto";
 import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { z } from "zod";

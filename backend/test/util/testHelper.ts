@@ -1,6 +1,6 @@
-import { FPF, O } from "@src/modules/shared/utils/application/monads";
-import { removeEntityDates } from "@src/modules/shared/utils/database/database.util";
-import { BaseDateEntity } from "@src/modules/shared/utils/domain/dateEntity.base";
+import { FPF, O } from "@shared/utils/application/monads";
+import { removeEntityDates } from "@shared/utils/database/database.util";
+import { BaseDateEntity } from "@shared/utils/domain/dateEntity.base";
 
 export class TestHelper {
   static expectNone = <T>(res: O.Option<T>) => {

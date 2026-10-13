@@ -19,7 +19,7 @@ export const loggerEnv: LoggerEnv = {
 export const getGenReqId: GenReqId = (req) => req.requestId || uuidv4();
 
 export const getLoggerOptions = (env: LoggerEnv): LoggerOptions & Options => ({
-  name: "library",
+  name: "exchange",
   genReqId: getGenReqId,
   formatters: { bindings: () => ({}) },
   // redact

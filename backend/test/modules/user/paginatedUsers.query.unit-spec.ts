@@ -1,5 +1,5 @@
+import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { DomainEventPublisherModule } from "@src/modules/shared/domain-event-publisher/domainEventPublisher.module";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 import { FakeUserRepository } from "@user/database/fakeUser.repository";

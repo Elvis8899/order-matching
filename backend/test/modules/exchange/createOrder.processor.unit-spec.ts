@@ -1,11 +1,11 @@
-import { getQueueToken } from "@nestjs/bullmq";
-import { CommandHandler, CqrsModule, ICommandHandler } from "@nestjs/cqrs";
 import {
   FindMatch,
   FindMatchHandler,
-} from "@src/modules/exchange/commands/findMatch/findMatch.command";
-import { CreatedOrderProcessor } from "@src/modules/exchange/processors/createdOrder.processor";
-import { QueueNames } from "@src/modules/shared/queue/queue.config";
+} from "@exchange/commands/findMatch/findMatch.command";
+import { CreatedOrderProcessor } from "@exchange/processors/createdOrder.processor";
+import { getQueueToken } from "@nestjs/bullmq";
+import { CommandHandler, CqrsModule, ICommandHandler } from "@nestjs/cqrs";
+import { QueueNames } from "@shared/queue/queue.config";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";
 import { Job } from "bullmq";

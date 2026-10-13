@@ -1,11 +1,11 @@
+import { CreateWallet } from "@exchange/commands/createWallet/createWallet.command";
 import { Injectable } from "@nestjs/common";
 import { CommandBus } from "@nestjs/cqrs";
 import { OnEvent } from "@nestjs/event-emitter";
-import { CreateWallet } from "@src/modules/exchange/commands/createWallet/createWallet.command";
 import {
   USER_CREATED,
   UserCreatedEvent,
-} from "@src/modules/user/domain/events/userCreated.event";
+} from "@user/domain/events/userCreated.event";
 
 @Injectable()
 export class CreateUserSubscriber {

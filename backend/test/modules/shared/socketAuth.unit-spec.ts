@@ -1,6 +1,6 @@
+import { RequestJWTPayload } from "@auth/domain/login.entity";
 import { JwtService } from "@nestjs/jwt";
-import { RequestJWTPayload } from "@src/modules/auth/domain/login.entity";
-import { WsAuthService } from "@src/modules/shared/socket/adapter/socketAuth.service";
+import { WsAuthService } from "@shared/socket/adapter/socketAuth.service";
 import { MockAuthGuardBuilder } from "@test/data-builders/mockAuthGuardBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { UnitModule } from "@test/util/defaultModule.unit";

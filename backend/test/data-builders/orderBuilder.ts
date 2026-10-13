@@ -1,11 +1,11 @@
-import { FPF } from "@shared/utils/application/monads";
-import { UUID } from "@shared/uuid/entities/uuid";
 import {
   Order,
   OrderSideEnum,
   OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
-import { CreateOrderDto } from "@src/modules/exchange/dtos/order.dto";
+} from "@exchange/domain/order.entity";
+import { CreateOrderDto } from "@exchange/dtos/order.dto";
+import { FPF } from "@shared/utils/application/monads";
+import { UUID } from "@shared/uuid/entities/uuid";
 import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { z } from "zod";

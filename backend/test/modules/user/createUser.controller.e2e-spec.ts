@@ -1,4 +1,4 @@
-import { CreateUserSubscriber } from "@src/modules/exchange/subscribers/createUser.subscriber";
+import { CreateUserSubscriber } from "@exchange/subscribers/createUser.subscriber";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 import { unsafeCoerce } from "fp-ts/lib/function";

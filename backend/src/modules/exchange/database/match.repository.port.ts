@@ -1,15 +1,12 @@
+import { Match, MatchStatistics } from "@exchange/domain/match.entity";
 import { O, TE } from "@shared/utils/application/monads";
 import {
   Paginated,
   RepositoryDefaultPort,
 } from "@shared/utils/database/repository.port";
+import { DateType } from "@shared/utils/domain/DateType";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
-import {
-  Match,
-  MatchStatistics,
-} from "@src/modules/exchange/domain/match.entity";
-import { DateType } from "@src/modules/shared/utils/domain/DateType";
-import { UUID } from "@src/modules/shared/uuid/entities/uuid";
+import { UUID } from "@shared/uuid/entities/uuid";
 import z from "zod";
 
 export const MatchFindQuery = z.object({

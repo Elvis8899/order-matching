@@ -1,3 +1,8 @@
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { WALLET_CREATED } from "@exchange/domain/events/walletCreated.event";
+import { walletAlreadyExistsException } from "@exchange/domain/exchange.errors";
+import { Wallet } from "@exchange/domain/wallet.entity";
+import { CreateWalletDto } from "@exchange/dtos/wallet.dto";
 import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { executeTask } from "@shared/utils/application/executeTask";
@@ -5,13 +10,8 @@ import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, O, RE, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { WALLET_CREATED } from "@src/modules/exchange/domain/events/walletCreated.event";
-import { walletAlreadyExistsException } from "@src/modules/exchange/domain/exchange.errors";
-import { Wallet } from "@src/modules/exchange/domain/wallet.entity";
-import { CreateWalletDto } from "@src/modules/exchange/dtos/wallet.dto";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
-import { userNotFoundException } from "@src/modules/user/domain/user.errors";
+import { UserRepository } from "@user/database/user.repository.port";
+import { userNotFoundException } from "@user/domain/user.errors";
 import { PinoLogger } from "nestjs-pino";
 
 export class CreateWallet implements ICommand {

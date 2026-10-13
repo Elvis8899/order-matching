@@ -1,14 +1,14 @@
+import { OrderRepository } from "@exchange/database/order.repository.port";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { CreateOrderSubscriber } from "@exchange/subscribers/createOrder.subscriber";
 import { HttpStatus } from "@nestjs/common";
-import { OrderRepository } from "@src/modules/exchange/database/order.repository.port";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { CreateOrderSubscriber } from "@src/modules/exchange/subscribers/createOrder.subscriber";
-import { executeTasks } from "@src/modules/shared/utils/application/executeTask";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
+import { executeTasks } from "@shared/utils/application/executeTask";
 import { OrderBuilder } from "@test/data-builders/orderBuilder";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { WalletBuilder } from "@test/data-builders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { E2EModule } from "@test/util/defaultModule.e2e";
+import { UserRepository } from "@user/database/user.repository.port";
 
 const testModule = new E2EModule((app) => ({
   orderRepository: app.get(OrderRepository),

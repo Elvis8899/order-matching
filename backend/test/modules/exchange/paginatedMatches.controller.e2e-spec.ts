@@ -1,5 +1,5 @@
+import { MatchRepository } from "@exchange/database/match.repository.port";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
 import { MatchBuilder } from "@test/data-builders/matchBuilder";
 import { E2EModule } from "@test/util/defaultModule.e2e";
 

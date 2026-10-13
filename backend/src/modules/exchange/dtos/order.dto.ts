@@ -1,10 +1,7 @@
+import { OrderSideEnum, OrderStatusEnum } from "@exchange/domain/order.entity";
 import { ApiProperty, OmitType } from "@nestjs/swagger";
 import { BaseEntityDto } from "@shared/utils/dtos/baseEntity.dto";
 import { PaginatedResponseDto } from "@shared/utils/dtos/paginated.response.base";
-import {
-  OrderSideEnum,
-  OrderStatusEnum,
-} from "@src/modules/exchange/domain/order.entity";
 
 export class OrderDto extends BaseEntityDto {
   @ApiProperty({

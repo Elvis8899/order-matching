@@ -1,3 +1,6 @@
+import { AuthGuard } from "@auth/guards/auth.guard";
+import { MatchStatisticsDto } from "@exchange/dtos/match.dto";
+import { MatchStatisticsQuery } from "@exchange/queries/matchStatistics/matchStatistics.query";
 import { Controller, Get, HttpStatus, UseGuards } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import {
@@ -6,9 +9,6 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { AuthGuard } from "@src/modules/auth/guards/auth.guard";
-import { MatchStatisticsDto } from "@src/modules/exchange/dtos/match.dto";
-import { MatchStatisticsQuery } from "@src/modules/exchange/queries/matchStatistics/matchStatistics.query";
 
 @Controller("v1/")
 @ApiBearerAuth()

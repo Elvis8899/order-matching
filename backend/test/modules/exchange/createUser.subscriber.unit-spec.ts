@@ -1,19 +1,19 @@
+import { CreateWalletHandler } from "@exchange/commands/createWallet/createWallet.command";
+import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { CreateUserSubscriber } from "@exchange/subscribers/createUser.subscriber";
 import { CqrsModule } from "@nestjs/cqrs";
 import { DomainEventPublisher } from "@shared/domain-event-publisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domain-event-publisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { CreateWalletHandler } from "@src/modules/exchange/commands/createWallet/createWallet.command";
-import { FakeWalletRepository } from "@src/modules/exchange/database/fakeWallet.repository";
-import { WalletRepository } from "@src/modules/exchange/database/wallet.repository.port";
-import { CreateUserSubscriber } from "@src/modules/exchange/subscribers/createUser.subscriber";
-import { FakeUserRepository } from "@src/modules/user/database/fakeUser.repository";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
+import { UserBuilder } from "@test/data-builders/userBuilder";
+import { UnitModule } from "@test/util/defaultModule.unit";
+import { FakeUserRepository } from "@user/database/fakeUser.repository";
+import { UserRepository } from "@user/database/user.repository.port";
 import {
   USER_CREATED,
   UserCreatedEvent,
-} from "@src/modules/user/domain/events/userCreated.event";
-import { UserBuilder } from "@test/data-builders/userBuilder";
-import { UnitModule } from "@test/util/defaultModule.unit";
+} from "@user/domain/events/userCreated.event";
 
 describe("[Unit] Endpoint Response - Subscriber", () => {
   const modRef = new UnitModule(

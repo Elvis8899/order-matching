@@ -1,18 +1,18 @@
+import { MatchRepository } from "@exchange/database/match.repository.port";
+import { RealMatchRepository } from "@exchange/database/realMatch.repository";
 import { InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "@shared/prisma/adapter/prisma.service";
 import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
-import { MatchRepository } from "@src/modules/exchange/database/match.repository.port";
-import { RealMatchRepository } from "@src/modules/exchange/database/realMatch.repository";
-import { RealUserRepository } from "@src/modules/user/database/realUser.repository";
-import { UserRepository } from "@src/modules/user/database/user.repository.port";
 import { MatchBuilder } from "@test/data-builders/matchBuilder";
 import { UserBuilder } from "@test/data-builders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
 import { IntegrationModule } from "@test/util/defaultModule.inte";
 import { TestHelper } from "@test/util/testHelper";
+import { RealUserRepository } from "@user/database/realUser.repository";
+import { UserRepository } from "@user/database/user.repository.port";
 
 const inteM = new IntegrationModule(
   [

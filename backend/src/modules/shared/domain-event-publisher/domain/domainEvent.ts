@@ -1,4 +1,4 @@
-import { AllExchangeEvents } from "@src/modules/exchange/domain/events";
+import { AllExchangeEvents } from "@exchange/domain/events";
 import { AllUserEvents } from "@user/domain/events";
 import { z } from "zod";
 
