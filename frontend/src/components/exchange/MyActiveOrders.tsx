@@ -12,8 +12,9 @@ const fmt = (n: number, d = 2) =>
 const MyActiveOrders = () => {
   const { myOrders, cancelUserOrder } = useExchange();
 
-  const handleCancel = (id: string) => {
-    if (cancelUserOrder(id)) toast.success("Order cancelled");
+  const handleCancel = async (id: string) => {
+    if (await cancelUserOrder(id)) toast.success("Order cancelled");
+    else toast.error("Unable to cancel the order");
   };
 
   return (
@@ -58,6 +59,7 @@ const MyActiveOrders = () => {
                 <td className="py-1 text-right">
                   <button
                     onClick={() => handleCancel(o.id)}
+                    aria-label="Cancel order"
                     className="text-sell hover:opacity-70"
                   >
                     <X className="h-3 w-3" />

@@ -10,6 +10,7 @@ const Pagination = ({ state }: { state: PaginationHook<unknown> }) => {
       <button
         onClick={() => state.setPage(Math.max(0, state.data.page - 1))}
         disabled={state.data.page === 0}
+        aria-label="Previous page"
         className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
       >
         <ChevronLeft className="h-3.5 w-3.5" />
@@ -22,6 +23,7 @@ const Pagination = ({ state }: { state: PaginationHook<unknown> }) => {
           state.setPage(Math.min(state.pages - 1, state.data.page + 1))
         }
         disabled={state.data.page >= state.pages - 1}
+        aria-label="Next page"
         className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
       >
         <ChevronRight className="h-3.5 w-3.5" />

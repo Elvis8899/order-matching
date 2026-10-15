@@ -10,7 +10,7 @@ import { defineConfig } from "eslint/config";
 
 
 export default defineConfig(
-  { ignores: ["dist" , "tailwind.config.ts", 'vitest.config.ts'] },
+  { ignores: ["dist", "coverage", "tailwind.config.ts", 'vitest.config.ts'] },
   {
     languageOptions: {
       ecmaVersion: 2020,

@@ -31,6 +31,7 @@ const Exchange = () => {
           <ThemeToggle />
           <button
             onClick={logout}
+            aria-label="Log out"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <LogOut className="h-4 w-4" />

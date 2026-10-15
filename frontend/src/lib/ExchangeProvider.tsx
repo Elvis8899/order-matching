@@ -238,8 +238,10 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
 
   const cancelUserOrder = async (orderId: string) => {
     if (!user) return false;
-    const result = await ExchangeService.cancelOrder(orderId);
-    const success = result.status === 200;
+    const result = await ExchangeService.cancelOrder(orderId).catch(
+      () => null,
+    );
+    const success = result?.status === 200;
     if (success) refresh();
     return success;
   };

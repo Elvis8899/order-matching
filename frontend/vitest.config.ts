@@ -14,8 +14,24 @@ export default defineConfig({
       // json-summary feeds the coverage badges (see the CI workflow)
       reporter: ["json", "text-summary", "lcov", "json-summary"],
       include: ["src/**/*.{ts,tsx}"],
-      // components/ui holds the generated shadcn/ui components
-      exclude: ["src/components/ui/**", "src/test/**", "src/**/*.d.ts"],
+      // components/ui and hooks hold the generated shadcn/ui components and
+      // their hooks; NavLink is an unused scaffold and main.tsx only mounts App
+      exclude: [
+        "src/components/ui/**",
+        "src/hooks/**",
+        "src/components/NavLink.tsx",
+        "src/main.tsx",
+        // Type declarations only
+        "src/lib/types.ts",
+        "src/test/**",
+        "src/**/*.d.ts",
+      ],
+      thresholds: {
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
+      },
     },
   },
   resolve: {

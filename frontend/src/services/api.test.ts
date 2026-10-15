@@ -51,6 +51,7 @@ describe("http token refresh", () => {
   afterEach(() => {
     http.defaults.adapter = originalAdapter;
     refresh.mockReset();
+    vi.unstubAllGlobals();
   });
 
   it("Should refresh an expired access token once and retry", async () => {
@@ -113,5 +114,45 @@ describe("http token refresh", () => {
     await expect(http.post("/login", {})).rejects.toThrow();
 
     expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("Should give up without a refresh token", async () => {
+    localStorage.clear();
+    http.defaults.adapter = async (config) => reject(config, 401);
+
+    await expect(http.get("orders")).rejects.toThrow();
+
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("Should refresh a request that was sent without an access token", async () => {
+    localStorage.removeItem("exchange_token");
+    http.defaults.adapter = acceptOnly("access-2");
+    refresh.mockResolvedValue({ data: credentials(2) });
+
+    await expect(http.get("orders")).resolves.toMatchObject({ status: 200 });
+  });
+
+  it("Should refresh a request without a URL", async () => {
+    http.defaults.adapter = acceptOnly("access-2");
+    refresh.mockResolvedValue({ data: credentials(2) });
+
+    await expect(http.request({ method: "get" })).resolves.toMatchObject({
+      status: 200,
+    });
+  });
+
+  it("Should take turns with other tabs through a Web Lock", async () => {
+    const request = vi.fn((_name: string, run: () => Promise<unknown>) => run());
+    vi.stubGlobal("navigator", { locks: { request } });
+    http.defaults.adapter = acceptOnly("access-2");
+    refresh.mockResolvedValue({ data: credentials(2) });
+
+    await http.get("orders");
+
+    expect(request).toHaveBeenCalledWith(
+      "exchange-token-refresh",
+      expect.any(Function),
+    );
   });
 });
