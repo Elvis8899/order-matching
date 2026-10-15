@@ -2,11 +2,18 @@ import {
   CancelOrder,
   CancelOrderHandler,
 } from "@exchange/commands/cancelOrder/cancelOrder.command";
+import { FakeMatchRepository } from "@exchange/database/fakeMatch.repository";
 import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { FakeSettlementRepository } from "@exchange/database/fakeSettlement.repository";
 import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
+import { MatchRepository } from "@exchange/database/match.repository.port";
 import { OrderRepository } from "@exchange/database/order.repository.port";
+import { SettlementRepository } from "@exchange/database/settlement.repository.port";
 import { WalletRepository } from "@exchange/database/wallet.repository.port";
-import { OrderNotFoundException } from "@exchange/domain/exchange.errors";
+import {
+  OrderChangedException,
+  OrderNotFoundException,
+} from "@exchange/domain/exchange.errors";
 import {
   Order,
   OrderSideEnum,
@@ -16,7 +23,7 @@ import { Wallet } from "@exchange/domain/wallet.entity";
 import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { FPF, O } from "@shared/utils/application/monads";
+import { FPF, O, TE } from "@shared/utils/application/monads";
 import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
@@ -37,6 +44,8 @@ describe("[Unit] Cancel Order", () => {
         { provide: UserRepository, useClass: FakeUserRepository },
         { provide: WalletRepository, useClass: FakeWalletRepository },
         { provide: OrderRepository, useClass: FakeOrderRepository },
+        { provide: MatchRepository, useClass: FakeMatchRepository },
+        { provide: SettlementRepository, useClass: FakeSettlementRepository },
       ],
     },
     (ref) => ({
@@ -181,5 +190,68 @@ describe("[Unit] Cancel Order", () => {
       new CancelOrder(defaultOrder.id, defaultOrder.userId),
     );
     await expect(resultPromise).rejects.toBeInstanceOf(OrderNotFoundException);
+  });
+
+  it("Should refund only the unfilled part of a partially filled order", async () => {
+    // Given a buy order and a sell order, each half filled
+    const buyOrder = new OrderBuilder(1).withAmount(4).build();
+    const sellOrder = new OrderBuilder(2)
+      .withSide(OrderSideEnum.Sell)
+      .withAmount(4)
+      .build();
+    await executeTask(
+      modRef.r.orderRepository.save({ ...buyOrder, filled: 1 }),
+    );
+    await executeTask(
+      modRef.r.orderRepository.save({ ...sellOrder, filled: 3 }),
+    );
+
+    // When both are cancelled
+    await modRef.r.cancelOrderHandler.execute(
+      new CancelOrder(buyOrder.id, buyOrder.userId),
+    );
+    await modRef.r.cancelOrderHandler.execute(
+      new CancelOrder(sellOrder.id, sellOrder.userId),
+    );
+
+    // Then only the reserved funds still unused come back
+    const wallet = await executeTask(
+      modRef.r.walletRepository.findById(defaultWallet.id),
+    );
+    expect(wallet).toEqual(
+      O.some(
+        expect.objectContaining({
+          usd: defaultWallet.usd + 3 * buyOrder.price,
+          btc: defaultWallet.btc + 1,
+        }),
+      ),
+    );
+  });
+
+  it("Should not cancel or refund an order filled after it was read", async () => {
+    // A match is saved between reading the order and cancelling it
+    const { findById, save } = modRef.r.orderRepository;
+    jest
+      .spyOn(modRef.r.orderRepository, "findById")
+      .mockImplementationOnce((id) =>
+        FPF.pipe(
+          findById(id),
+          TE.tap(() => save({ ...defaultOrder, filled: 0.5 })),
+        ),
+      );
+
+    const resultPromise = modRef.r.cancelOrderHandler.execute(
+      new CancelOrder(defaultOrder.id, defaultOrder.userId),
+    );
+
+    await expect(resultPromise).rejects.toBeInstanceOf(OrderChangedException);
+    const [order, wallet] = await Promise.all([
+      executeTask(modRef.r.orderRepository.findById(defaultOrder.id)),
+      executeTask(modRef.r.walletRepository.findById(defaultWallet.id)),
+    ]);
+    expect(order).toEqual(
+      O.some({ ...defaultOrder, filled: 0.5, status: OrderStatusEnum.Active }),
+    );
+    expect(wallet).toEqual(O.some(defaultWallet));
   });
 });

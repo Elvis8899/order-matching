@@ -1,9 +1,11 @@
-import { MatchRepository } from "@exchange/database/match.repository.port";
 import {
   OrderFindQuery,
   OrderRepository,
 } from "@exchange/database/order.repository.port";
-import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import {
+  OrderFill,
+  SettlementRepository,
+} from "@exchange/database/settlement.repository.port";
 import { MATCH_CREATED } from "@exchange/domain/events/matchCreated.event";
 import { orderNotFoundException } from "@exchange/domain/exchange.errors";
 import {
@@ -38,8 +40,7 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
   constructor(
     private readonly uuidGeneratorService: RealUUIDGeneratorService,
     private readonly orderRepository: OrderRepository,
-    private readonly walletRepository: WalletRepository,
-    private readonly matchRepository: MatchRepository,
+    private readonly settlementRepository: SettlementRepository,
     private readonly domainEventPublisher: DomainEventPublisher,
     private readonly logger: PinoLogger,
   ) {
@@ -64,14 +65,14 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
     matchingOrders: Order[],
   ): {
     wallets: PartialWallet[];
-    orders: Order[];
+    orders: OrderFill[];
     matches: PartialMatch[];
   } {
     const isBuy = order.side === OrderSideEnum.Buy;
     let amountRemaining = order.amount - order.filled;
     const matches: PartialMatch[] = [];
     const wallets: PartialWallet[] = [];
-    const orders: Order[] = [];
+    const orders: OrderFill[] = [];
     const manageWallet = (wallet: { id: string; btc: number; usd: number }) => {
       const existingWallet = wallets.find((w) => w.id === wallet.id);
       if (!existingWallet) {
@@ -93,15 +94,18 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
       const amount = Math.min(amountRemaining, match.amount - match.filled);
       const volume = amount * price;
       const filled = match.filled + amount;
+      // The buyer reserved USD at their own price; return what the trade
+      // price saved them
+      const buyerRefund = ((isBuy ? order : match).price - price) * amount;
       manageWallet({
         id: order.userId,
         btc: isBuy ? amount : 0,
-        usd: (isBuy ? 0 : volume) - MATCH_TAKER_FEE * volume,
+        usd: (isBuy ? buyerRefund : volume) - MATCH_TAKER_FEE * volume,
       });
       manageWallet({
         id: match.userId,
         btc: isBuy ? 0 : amount,
-        usd: (isBuy ? volume : 0) - MATCH_MAKER_FEE * volume,
+        usd: (isBuy ? volume : buyerRefund) - MATCH_MAKER_FEE * volume,
       });
       matches.push({
         price: price,
@@ -113,9 +117,8 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
       });
       amountRemaining -= amount;
       orders.push({
-        ...match,
-        filled,
-        status: getNewStatus(match.amount, filled),
+        order: { ...match, filled, status: getNewStatus(match.amount, filled) },
+        readFilled: match.filled,
       });
       if (amountRemaining <= 0) {
         break;
@@ -123,9 +126,8 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
     }
     const filled = order.amount - amountRemaining;
     orders.push({
-      ...order,
-      filled,
-      status: getNewStatus(order.amount, filled),
+      order: { ...order, filled, status: getNewStatus(order.amount, filled) },
+      readFilled: order.filled,
     });
     return { wallets, matches, orders };
   }
@@ -175,33 +177,14 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
           orders: RTE.of(data.orders),
         }),
       ),
+      // Nothing matched: the order is unchanged, so there is nothing to save
       RTE.tap((data) =>
-        Apply.sequenceS(RTE.ApplicativePar)({
-          wallets: A.sequence(RTE.ApplicativePar)(
-            data.wallets.map(
-              performRTE(
-                this.walletRepository.save,
-                "save wallet in storage system.",
-              ),
-            ),
-          ),
-          matches: A.sequence(RTE.ApplicativePar)(
-            data.matches.map(
-              performRTE(
-                this.matchRepository.save,
-                "save match in storage system.",
-              ),
-            ),
-          ),
-          orders: A.sequence(RTE.ApplicativePar)(
-            data.orders.map(
-              performRTE(
-                this.orderRepository.save,
-                "save order in storage system.",
-              ),
-            ),
-          ),
-        }),
+        data.matches.length === 0
+          ? RTE.right(undefined)
+          : performRTE(
+              this.settlementRepository.settle,
+              "save matches, orders and wallets in storage system.",
+            )(data),
       ),
 
       //Emit domain event

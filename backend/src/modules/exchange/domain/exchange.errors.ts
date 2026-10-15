@@ -32,3 +32,10 @@ export class InsufficientWalletFundsException extends NotFoundException {
 }
 export const insufficientWalletFundsException = () =>
   new InsufficientWalletFundsException();
+
+export class OrderChangedException extends ConflictException {
+  constructor() {
+    super("Pedido alterado durante o processamento.");
+  }
+}
+export const orderChangedException = () => new OrderChangedException();

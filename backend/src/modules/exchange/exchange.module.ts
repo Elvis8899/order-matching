@@ -8,7 +8,9 @@ import { MatchRepository } from "@exchange/database/match.repository.port";
 import { OrderRepository } from "@exchange/database/order.repository.port";
 import { RealMatchRepository } from "@exchange/database/realMatch.repository";
 import { RealOrderRepository } from "@exchange/database/realOrder.repository";
+import { RealSettlementRepository } from "@exchange/database/realSettlement.repository";
 import { RealWalletRepository } from "@exchange/database/realWallet.repository";
+import { SettlementRepository } from "@exchange/database/settlement.repository.port";
 import { WalletRepository } from "@exchange/database/wallet.repository.port";
 import { CreatedOrderProcessor } from "@exchange/processors/createdOrder.processor";
 import { GetWalletByIdController } from "@exchange/queries/getWalletById/getWalletById.controller";
@@ -71,6 +73,7 @@ const repositories = [
     useClass: RealOrderRepository,
   },
   { provide: MatchRepository, useClass: RealMatchRepository },
+  { provide: SettlementRepository, useClass: RealSettlementRepository },
   {
     provide: UserRepository,
     useClass: RealUserRepository,

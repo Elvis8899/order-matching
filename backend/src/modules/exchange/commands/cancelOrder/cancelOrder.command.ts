@@ -1,5 +1,5 @@
 import { OrderRepository } from "@exchange/database/order.repository.port";
-import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { SettlementRepository } from "@exchange/database/settlement.repository.port";
 import { ORDER_CANCELED } from "@exchange/domain/events/orderCanceled.event";
 import { orderNotFoundException } from "@exchange/domain/exchange.errors";
 import {
@@ -30,18 +30,20 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrder, void> {
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly domainEventPublisher: DomainEventPublisher,
-    private readonly walletRepository: WalletRepository,
+    private readonly settlementRepository: SettlementRepository,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext("CancelOrder");
   }
 
+  /** Returns the funds reserved for the part of the order not yet filled. */
   static walletChange(order: Order): Wallet {
     const isBuy = order.side === OrderSideEnum.Buy;
+    const unfilled = order.amount - order.filled;
     return {
       id: order.userId,
-      btc: isBuy ? 0 : order.amount,
-      usd: isBuy ? order.amount * order.price : 0,
+      btc: isBuy ? 0 : unfilled,
+      usd: isBuy ? unfilled * order.price : 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -77,20 +79,22 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrder, void> {
         FPF.pipe(CancelOrderHandler.walletChange(data.order)),
       ),
 
-      // Cancel entity
+      // Cancel the order and refund it in one transaction. It fails if the
+      // order was filled or cancelled since it was read.
       RTE.tap((data) =>
         performRTE(
-          this.orderRepository.save,
-          "delete order in storage system.",
-        )({ ...data.order, status: OrderStatusEnum.Cancelled }),
-      ),
-
-      // Store wallet
-      RTE.tap((data) =>
-        performRTE(
-          this.walletRepository.save,
-          "save wallet in storage system.",
-        )(data.wallet),
+          this.settlementRepository.settle,
+          "cancel order and refund wallet in storage system.",
+        )({
+          orders: [
+            {
+              order: { ...data.order, status: OrderStatusEnum.Cancelled },
+              readFilled: data.order.filled,
+            },
+          ],
+          wallets: [data.wallet],
+          matches: [],
+        }),
       ),
 
       // Emit domain event

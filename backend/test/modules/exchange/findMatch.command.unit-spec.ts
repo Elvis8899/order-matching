@@ -4,19 +4,26 @@ import {
 } from "@exchange/commands/findMatch/findMatch.command";
 import { FakeMatchRepository } from "@exchange/database/fakeMatch.repository";
 import { FakeOrderRepository } from "@exchange/database/fakeOrder.repository";
+import { FakeSettlementRepository } from "@exchange/database/fakeSettlement.repository";
 import { FakeWalletRepository } from "@exchange/database/fakeWallet.repository";
 import { MatchRepository } from "@exchange/database/match.repository.port";
 import { OrderRepository } from "@exchange/database/order.repository.port";
+import { SettlementRepository } from "@exchange/database/settlement.repository.port";
 import { WalletRepository } from "@exchange/database/wallet.repository.port";
+import { OrderChangedException } from "@exchange/domain/exchange.errors";
 import {
   MATCH_MAKER_FEE,
   MATCH_TAKER_FEE,
 } from "@exchange/domain/match.entity";
-import { OrderSideEnum, OrderStatusEnum } from "@exchange/domain/order.entity";
+import {
+  Order,
+  OrderSideEnum,
+  OrderStatusEnum,
+} from "@exchange/domain/order.entity";
 import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { A, TE } from "@shared/utils/application/monads";
+import { A, FPF, TE } from "@shared/utils/application/monads";
 import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
@@ -35,6 +42,7 @@ describe("[Unit] Find Match", () => {
         { provide: WalletRepository, useClass: FakeWalletRepository },
         { provide: OrderRepository, useClass: FakeOrderRepository },
         { provide: MatchRepository, useClass: FakeMatchRepository },
+        { provide: SettlementRepository, useClass: FakeSettlementRepository },
       ],
     },
     (ref) => ({
@@ -338,5 +346,128 @@ describe("[Unit] Find Match", () => {
 
     const matches = await executeTask(modRef.r.matchRepository.findAll());
     expect(matches.length).toEqual(0);
+  });
+
+  describe("When the trade price is better than the buyer's price", () => {
+    const balances = async () =>
+      (await executeTask(modRef.r.walletRepository.findAll())).map(
+        ({ usd, btc }) => ({ usd, btc }),
+      );
+    const expectBalances = async (expected: { usd: number; btc: number }[]) => {
+      const actual = await balances();
+      expected.forEach(({ usd, btc }, i) => {
+        expect(actual[i]?.usd).toBeCloseTo(usd, 9);
+        expect(actual[i]?.btc).toBeCloseTo(btc, 9);
+      });
+    };
+
+    it("Should refund the difference to a buyer who takes a cheaper sell", async () => {
+      // A sells 1 BTC at 100, then B buys 1 BTC at up to 120
+      const sell = oldOrderBuilder
+        .withSide(OrderSideEnum.Sell)
+        .withPrice(100)
+        .build();
+      const buy = new OrderBuilder(1)
+        .withSide(OrderSideEnum.Buy)
+        .withUserId(defaultWalletB.id)
+        .withPrice(120)
+        .build();
+      await executeTask(modRef.r.orderRepository.save(sell));
+      await executeTask(modRef.r.orderRepository.save(buy));
+
+      await modRef.r.findMatchHandler.execute(new FindMatch(buy));
+
+      // B reserved 120 USD, paid 100 and gets 20 back, less the taker fee
+      await expectBalances([
+        {
+          usd: defaultWalletA.usd + 100 - MATCH_MAKER_FEE * 100,
+          btc: defaultWalletA.btc,
+        },
+        {
+          usd: defaultWalletB.usd + 20 - MATCH_TAKER_FEE * 100,
+          btc: defaultWalletB.btc + 1,
+        },
+      ]);
+    });
+
+    it("Should refund the difference to a resting buyer", async () => {
+      // A bids 100 for 1 BTC, then B sells 1 BTC at 90
+      const buy = oldOrderBuilder
+        .withSide(OrderSideEnum.Buy)
+        .withPrice(100)
+        .build();
+      const sell = new OrderBuilder(1)
+        .withSide(OrderSideEnum.Sell)
+        .withUserId(defaultWalletB.id)
+        .withPrice(90)
+        .build();
+      await executeTask(modRef.r.orderRepository.save(buy));
+      await executeTask(modRef.r.orderRepository.save(sell));
+
+      await modRef.r.findMatchHandler.execute(new FindMatch(sell));
+
+      // The trade is at 90: A reserved 100 and gets 10 back, less the maker fee
+      await expectBalances([
+        {
+          usd: defaultWalletA.usd + 10 - MATCH_MAKER_FEE * 90,
+          btc: defaultWalletA.btc + 1,
+        },
+        {
+          usd: defaultWalletB.usd + 90 - MATCH_TAKER_FEE * 90,
+          btc: defaultWalletB.btc,
+        },
+      ]);
+    });
+  });
+
+  describe("When a matched order changes before the results are saved", () => {
+    // The worker read the order book, then another request changed the order
+    const changeAfterRead = (change: Partial<Order>) => {
+      const { findAll, save } = modRef.r.orderRepository;
+      jest
+        .spyOn(modRef.r.orderRepository, "findAll")
+        .mockImplementationOnce((params) =>
+          FPF.pipe(
+            findAll(params),
+            TE.tap((orders) =>
+              A.sequence(TE.ApplicativeSeq)(
+                orders.map((order) => save({ ...order, ...change })),
+              ),
+            ),
+          ),
+        );
+    };
+
+    const matchAgainstOldOrder = async () => {
+      const oldOrder = oldOrderBuilder.withSide(OrderSideEnum.Sell).build();
+      const newOrder = new OrderBuilder(1)
+        .withSide(OrderSideEnum.Buy)
+        .withUserId(defaultWalletB.id)
+        .build();
+      await executeTask(modRef.r.orderRepository.save(oldOrder));
+      await executeTask(modRef.r.orderRepository.save(newOrder));
+      return { oldOrder, newOrder };
+    };
+
+    it.each([
+      ["cancelled", { status: OrderStatusEnum.Cancelled }],
+      ["filled by another match", { filled: 0.5 }],
+    ])("Should save nothing if it was %s", async (_, change) => {
+      const { oldOrder, newOrder } = await matchAgainstOldOrder();
+      changeAfterRead(change);
+
+      await expect(
+        modRef.r.findMatchHandler.execute(new FindMatch(newOrder)),
+      ).rejects.toThrow(OrderChangedException);
+
+      const [matches, wallets, orders] = await Promise.all([
+        executeTask(modRef.r.matchRepository.findAll()),
+        executeTask(modRef.r.walletRepository.findAll()),
+        executeTask(modRef.r.orderRepository.findAll()),
+      ]);
+      expect(matches).toEqual([]);
+      expect(wallets).toEqual([defaultWalletA, defaultWalletB]);
+      expect(orders).toEqual([{ ...oldOrder, ...change }, newOrder]);
+    });
   });
 });
