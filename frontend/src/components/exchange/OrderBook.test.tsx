@@ -4,7 +4,7 @@ import OrderBook from "@/components/exchange/OrderBook";
 import { paginated, renderWithExchange } from "@/test/exchangeContext";
 
 describe("OrderBook", () => {
-  const level = { price: 30000, amount: 0.75, volume: 22500 };
+  const level = { price: "30000", amount: "0.75", volume: "22500" };
 
   it("Should say when there are no bids or asks", () => {
     renderWithExchange(<OrderBook />);
@@ -20,8 +20,8 @@ describe("OrderBook", () => {
     fireEvent.click(screen.getByText("$30,000.00"));
 
     expect(state.setFillFormAsk).toHaveBeenCalledWith({
-      price: 30000,
-      amount: 0.75,
+      price: "30000",
+      amount: "0.75",
     });
     expect(state.setFillFormBuy).not.toHaveBeenCalled();
   });
@@ -34,8 +34,8 @@ describe("OrderBook", () => {
     fireEvent.click(screen.getByText("$30,000.00"));
 
     expect(state.setFillFormBuy).toHaveBeenCalledWith({
-      price: 30000,
-      amount: 0.75,
+      price: "30000",
+      amount: "0.75",
     });
     expect(state.setFillFormAsk).not.toHaveBeenCalled();
   });

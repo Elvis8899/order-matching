@@ -55,7 +55,7 @@ describe("[Unit] List Grouped Orders", () => {
     expect(result.data[0]).toStrictEqual({
       amount: order.amount,
       price: order.price,
-      volume: order.price * order.amount,
+      volume: order.price.mul(order.amount),
     });
     expect(result.count).toBe(1);
     expect(result.page).toBe(page);
@@ -91,9 +91,9 @@ describe("[Unit] List Grouped Orders", () => {
     //Then it should show a list of orders
     expect(result.data.length).toBe(4);
     expect(result.data[3]).toStrictEqual({
-      amount: 2 * orders[0].amount,
+      amount: orders[0].amount.mul(2),
       price: orders[0].price,
-      volume: 2 * orders[0].price * orders[0].amount,
+      volume: orders[0].price.mul(orders[0].amount).mul(2),
     });
     expect(result.count).toBe(4);
     expect(result.page).toBe(page);
@@ -130,9 +130,9 @@ describe("[Unit] List Grouped Orders", () => {
     //Then it should show a list of orders
     expect(result.data.length).toBe(4);
     expect(result.data[0]).toStrictEqual({
-      amount: 2 * orders[0].amount,
+      amount: orders[0].amount.mul(2),
       price: orders[0].price,
-      volume: 2 * orders[0].price * orders[0].amount,
+      volume: orders[0].price.mul(orders[0].amount).mul(2),
     });
     expect(result.count).toBe(4);
     expect(result.page).toBe(page);

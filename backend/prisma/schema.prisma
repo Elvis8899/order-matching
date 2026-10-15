@@ -45,9 +45,11 @@ model RefreshSession {
   @@index([userId])
 }
 
+// Money is exact: BTC to the satoshi (8 places), USD to 10 places, which
+// holds a cent price times a satoshi amount
 model Wallet {
-  btc Float @default(0)
-  usd Float @default(0)
+  btc Decimal @default(0) @db.Decimal(30, 8)
+  usd Decimal @default(0) @db.Decimal(30, 10)
 
   id   String @unique
   user User   @relation(fields: [id], references: [id], onDelete: Cascade)
@@ -71,9 +73,9 @@ enum OrderStatus {
 model Order {
   id     String      @unique
   side   OrderSide
-  price  Float // USD per BTC
-  amount Float // BTC
-  filled Float // BTC filled so far
+  price  Decimal     @db.Decimal(30, 10) // USD per BTC
+  amount Decimal     @db.Decimal(30, 8) // BTC
+  filled Decimal     @db.Decimal(30, 8) // BTC filled so far
   status OrderStatus
 
   userId String
@@ -88,8 +90,8 @@ model Order {
 model Match {
   id String @unique
 
-  price       Float
-  volume      Float
+  price       Decimal @db.Decimal(30, 10)
+  volume      Decimal @db.Decimal(30, 10) // USD
   buyOrderId  String
   sellOrderId String
   buyUserId   String

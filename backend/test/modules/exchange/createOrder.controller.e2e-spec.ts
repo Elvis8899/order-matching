@@ -47,6 +47,28 @@ describe("[e2e] POST /v1/orders", () => {
     expect(response.status).toBe(201);
   });
 
+  it("Should store decimal strings exactly", async () => {
+    const order = orderBuilder
+      .withPrice("30000.55")
+      .withAmount("0.1")
+      .buildCreateDTO();
+
+    const response = await testModule.request().post(v1Route).send(order);
+
+    expect(response.status).toBe(201);
+    const [stored] = await testModule.prismaService.order.findMany();
+    expect([stored?.price.toString(), stored?.amount.toString()]).toEqual([
+      "30000.55",
+      "0.1",
+    ]);
+  });
+
+  it("Should respond 422 for a price with more than 2 places", async () => {
+    const order = orderBuilder.withPrice("100.001").buildCreateDTO();
+    const response = await testModule.request().post(v1Route).send(order);
+    expect(response.status).toBe(422);
+  });
+
   it("Should respond 422 for invalid amount", async () => {
     const order = orderBuilder.withAmount(0).buildCreateDTO();
     const response = await testModule.request().post(v1Route).send(order);

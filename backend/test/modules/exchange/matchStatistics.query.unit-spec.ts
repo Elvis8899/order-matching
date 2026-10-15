@@ -6,6 +6,7 @@ import {
 } from "@exchange/queries/matchStatistics/matchStatistics.query";
 import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
 import { UnitModule } from "@test/util/defaultModule.unit";
 
@@ -42,7 +43,7 @@ describe("[Unit] Match Statistics", () => {
     //Then it should show his data
     expect(result).toMatchObject({
       usdVolume24h: match.volume,
-      btcVolume24h: match.volume / match.price,
+      btcVolume24h: match.volume.div(match.price),
       lastPrice: match.price,
       high24h: match.price,
       low24h: match.price,
@@ -58,8 +59,8 @@ describe("[Unit] Match Statistics", () => {
     const result = await modRef.r.matchStatisticsQueryHandler.execute(query);
     //Then it should throw an MatchNotFoundException
     expect(result).toMatchObject({
-      usdVolume24h: 0,
-      btcVolume24h: 0,
+      usdVolume24h: new Decimal(0),
+      btcVolume24h: new Decimal(0),
       lastPrice: null,
       high24h: null,
       low24h: null,

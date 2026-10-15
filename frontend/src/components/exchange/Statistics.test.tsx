@@ -19,13 +19,13 @@ describe("Statistics", () => {
   it("Should show the statistics and the wallet", () => {
     renderWithExchange(<Statistics />, {
       stats: {
-        lastPrice: 30000,
-        btcVolume24h: 1.5,
-        usdVolume24h: 45000,
-        high24h: 31000,
-        low24h: 29000.5,
+        lastPrice: "30000",
+        btcVolume24h: "1.5",
+        usdVolume24h: "45000",
+        high24h: "31000",
+        low24h: "29000.5",
       },
-      wallet: { usd: 1234.5, btc: 0.1 },
+      wallet: { usd: "1234.5", btc: "0.1" },
     });
 
     expect(valueOf("Last Price")).toBe("$30,000.00");

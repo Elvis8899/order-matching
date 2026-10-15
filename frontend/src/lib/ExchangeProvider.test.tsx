@@ -21,11 +21,11 @@ vi.mock("@/services/api", async (importOriginal) => ({
 const ok = <T,>(data: T, status = 200) => ({ data, status }) as AxiosResponse<T>;
 const page = <T,>(data: T[] = []) => ok({ data, count: data.length, limit: 10, page: 0 });
 const stats: Stats = {
-  lastPrice: 30000,
-  btcVolume24h: 1,
-  usdVolume24h: 30000,
-  high24h: 30000,
-  low24h: 30000,
+  lastPrice: "30000",
+  btcVolume24h: "1",
+  usdVolume24h: "30000",
+  high24h: "30000",
+  low24h: "30000",
 };
 
 describe("ExchangeProvider", () => {
@@ -74,7 +74,7 @@ describe("ExchangeProvider", () => {
 
   beforeEach(() => {
     localStorage.clear();
-    exchange.wallet.mockResolvedValue(ok({ btc: 1, usd: 100 }));
+    exchange.wallet.mockResolvedValue(ok({ btc: "1", usd: "100" }));
     exchange.orders.mockResolvedValue(page());
     exchange.matches.mockResolvedValue(page());
     exchange.grouped.mockResolvedValue(page());
@@ -105,7 +105,7 @@ describe("ExchangeProvider", () => {
     it("Should not send orders", async () => {
       await renderProvider();
 
-      await expect(state.submitOrder("buy", 1, 1)).resolves.toEqual({
+      await expect(state.submitOrder("buy", "1", "1")).resolves.toEqual({
         success: false,
         error: "Not logged in",
       });
@@ -122,7 +122,7 @@ describe("ExchangeProvider", () => {
 
       expect(auth.login).toHaveBeenCalledWith("alice", "password123");
       expect(state.user).toEqual(alice);
-      await waitFor(() => expect(state.wallet).toEqual({ btc: 1, usd: 100 }));
+      await waitFor(() => expect(state.wallet).toEqual({ btc: "1", usd: "100" }));
       expect(exchange.orders).toHaveBeenCalledWith(alice.id, { page: 0, limit: 10 });
       expect(exchange.matches).toHaveBeenCalledWith(alice.id, { page: 0, limit: 10 });
     });
@@ -163,7 +163,7 @@ describe("ExchangeProvider", () => {
       await renderProvider();
 
       expect(state.user).toEqual(alice);
-      await waitFor(() => expect(state.wallet).toEqual({ btc: 1, usd: 100 }));
+      await waitFor(() => expect(state.wallet).toEqual({ btc: "1", usd: "100" }));
       await waitFor(() => expect(state.stats).toEqual(stats));
       expect(exchange.orders).toHaveBeenCalledWith(alice.id, { page: 0, limit: 10 });
     });
@@ -183,7 +183,7 @@ describe("ExchangeProvider", () => {
 
     it("Should update the statistics from the socket", async () => {
       await renderProvider();
-      const latest = { ...stats, lastPrice: 31000 };
+      const latest = { ...stats, lastPrice: "31000" };
 
       act(() => socket.emit("socket.match.created", latest));
 
@@ -195,7 +195,7 @@ describe("ExchangeProvider", () => {
       await renderProvider();
 
       await act(async () => {
-        await expect(state.submitOrder("sell", 30000, 0.5)).resolves.toEqual({
+        await expect(state.submitOrder("sell", "30000", "0.5")).resolves.toEqual({
           success: true,
           error: undefined,
         });
@@ -203,8 +203,8 @@ describe("ExchangeProvider", () => {
       expect(exchange.createOrder).toHaveBeenCalledWith({
         userId: alice.id,
         side: "sell",
-        price: 30000,
-        amount: 0.5,
+        price: "30000",
+        amount: "0.5",
       });
     });
 
@@ -217,7 +217,7 @@ describe("ExchangeProvider", () => {
       );
       await renderProvider();
 
-      await expect(state.submitOrder("buy", 30000, 100)).resolves.toEqual({
+      await expect(state.submitOrder("buy", "30000", "100")).resolves.toEqual({
         success: false,
         error: "Insufficient funds",
       });
@@ -245,7 +245,7 @@ describe("ExchangeProvider", () => {
       expect(auth.logout).toHaveBeenCalled();
       expect(socket.disconnect).toHaveBeenCalled();
       expect(state.user).toBeNull();
-      expect(state.wallet).toEqual({ btc: 0, usd: 0 });
+      expect(state.wallet).toEqual({ btc: "0", usd: "0" });
     });
 
     it("Should end the session when the refresh token is rejected", async () => {

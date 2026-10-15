@@ -23,7 +23,8 @@ import {
 import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
-import { A, FPF, TE } from "@shared/utils/application/monads";
+import { A, FPF, O, TE } from "@shared/utils/application/monads";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
@@ -94,18 +95,18 @@ describe("[Unit] Find Match", () => {
     const wallets = await executeTask(modRef.r.walletRepository.findAll());
     const walletUSDAmounts = wallets.map((w) => w.usd);
     const walletBTCAmounts = wallets.map((w) => w.btc);
-    const matchVolume = oldOrder.amount * oldOrder.price;
+    const matchVolume = oldOrder.amount.mul(oldOrder.price);
     // Seller pays MAKER_FEE Since his order is older
-    const makerDiff = matchVolume * (-1 * MATCH_MAKER_FEE);
+    const makerDiff = matchVolume.mul(MATCH_MAKER_FEE).neg();
     // Buyer receives 100% - TAKER_FEE Since his order is newer
-    const takerDiff = matchVolume * (1 - MATCH_TAKER_FEE);
+    const takerDiff = matchVolume.mul(new Decimal(1).sub(MATCH_TAKER_FEE));
     const matchAmount = oldOrder.amount;
     const expectedUSDAmounts = [
-      defaultWalletA.usd + makerDiff,
-      defaultWalletB.usd + takerDiff,
+      defaultWalletA.usd.add(makerDiff),
+      defaultWalletB.usd.add(takerDiff),
     ];
     const expectedBTCAmounts = [
-      defaultWalletA.btc + matchAmount,
+      defaultWalletA.btc.add(matchAmount),
       defaultWalletB.btc,
     ];
     expect(walletUSDAmounts).toEqual(expectedUSDAmounts);
@@ -150,19 +151,19 @@ describe("[Unit] Find Match", () => {
     const wallets = await executeTask(modRef.r.walletRepository.findAll());
     const walletUSDAmounts = wallets.map((w) => w.usd);
     const walletBTCAmounts = wallets.map((w) => w.btc);
-    const matchVolume = oldOrder.amount * oldOrder.price;
+    const matchVolume = oldOrder.amount.mul(oldOrder.price);
     // Seller pays MAKER_FEE Since his order is older
-    const makerDiff = matchVolume * (1 - MATCH_MAKER_FEE);
+    const makerDiff = matchVolume.mul(new Decimal(1).sub(MATCH_MAKER_FEE));
     // Buyer receives 100% - TAKER_FEE Since his order is newer
-    const takerDiff = matchVolume * (-1 * MATCH_TAKER_FEE);
+    const takerDiff = matchVolume.mul(MATCH_TAKER_FEE).neg();
     const matchAmount = oldOrder.amount;
     const expectedUSDAmounts = [
-      defaultWalletA.usd + makerDiff,
-      defaultWalletB.usd + takerDiff,
+      defaultWalletA.usd.add(makerDiff),
+      defaultWalletB.usd.add(takerDiff),
     ];
     const expectedBTCAmounts = [
       defaultWalletA.btc,
-      defaultWalletB.btc + matchAmount,
+      defaultWalletB.btc.add(matchAmount),
     ];
     expect(walletUSDAmounts).toEqual(expectedUSDAmounts);
     expect(walletBTCAmounts).toEqual(expectedBTCAmounts);
@@ -216,21 +217,21 @@ describe("[Unit] Find Match", () => {
     const walletUSDAmounts = wallets.map((w) => w.usd);
     const walletBTCAmounts = wallets.map((w) => w.btc);
     const matchVolume = oldOrders
-      .map((o) => o.amount * o.price)
-      .reduce((acc, o) => acc + o, 0);
+      .map((o) => o.amount.mul(o.price))
+      .reduce((acc, o) => acc.add(o), new Decimal(0));
     // Seller pays MAKER_FEE Since his order is older
-    const makerDiff = matchVolume * (-1 * MATCH_MAKER_FEE);
+    const makerDiff = matchVolume.mul(MATCH_MAKER_FEE).neg();
     // Buyer receives 100% - TAKER_FEE Since his order is newer
-    const takerDiff = matchVolume * (1 - MATCH_TAKER_FEE);
+    const takerDiff = matchVolume.mul(new Decimal(1).sub(MATCH_TAKER_FEE));
     const matchAmount = oldOrders
       .map((o) => o.amount)
-      .reduce((acc, o) => acc + o, 0);
+      .reduce((acc, o) => acc.add(o), new Decimal(0));
     const expectedUSDAmounts = [
-      defaultWalletA.usd + makerDiff,
-      defaultWalletB.usd + takerDiff,
+      defaultWalletA.usd.add(makerDiff),
+      defaultWalletB.usd.add(takerDiff),
     ];
     const expectedBTCAmounts = [
-      defaultWalletA.btc + matchAmount,
+      defaultWalletA.btc.add(matchAmount),
       defaultWalletB.btc,
     ];
     expect(walletUSDAmounts).toEqual(expectedUSDAmounts);
@@ -293,22 +294,22 @@ describe("[Unit] Find Match", () => {
     const walletUSDAmounts = wallets.map((w) => w.usd);
     const walletBTCAmounts = wallets.map((w) => w.btc);
     const matchVolume = oldOrders
-      .map((o) => o.amount * o.price)
-      .reduce((acc, o) => acc + o, 0);
+      .map((o) => o.amount.mul(o.price))
+      .reduce((acc, o) => acc.add(o), new Decimal(0));
     // Seller pays MAKER_FEE Since his order is older
-    const makerDiff = matchVolume * (1 - MATCH_MAKER_FEE);
+    const makerDiff = matchVolume.mul(new Decimal(1).sub(MATCH_MAKER_FEE));
     // Buyer receives 100% - TAKER_FEE Since his order is newer
-    const takerDiff = matchVolume * (-1 * MATCH_TAKER_FEE);
+    const takerDiff = matchVolume.mul(MATCH_TAKER_FEE).neg();
     const matchAmount = oldOrders
       .map((o) => o.amount)
-      .reduce((acc, o) => acc + o, 0);
+      .reduce((acc, o) => acc.add(o), new Decimal(0));
     const expectedUSDAmounts = [
-      defaultWalletA.usd + makerDiff,
-      defaultWalletB.usd + takerDiff,
+      defaultWalletA.usd.add(makerDiff),
+      defaultWalletB.usd.add(takerDiff),
     ];
     const expectedBTCAmounts = [
       defaultWalletA.btc,
-      defaultWalletB.btc + matchAmount,
+      defaultWalletB.btc.add(matchAmount),
     ];
     expect(walletUSDAmounts).toEqual(expectedUSDAmounts);
     expect(walletBTCAmounts).toEqual(expectedBTCAmounts);
@@ -348,17 +349,96 @@ describe("[Unit] Find Match", () => {
     expect(matches.length).toEqual(0);
   });
 
+  describe("With amounts floats cannot represent", () => {
+    const sell = (n: number, amount: string, price: string) =>
+      new OrderBuilder()
+        .withId(createTestId(TableNameEnum.Order, n))
+        .withSide(OrderSideEnum.Sell)
+        .withAmount(amount)
+        .withPrice(price)
+        .build();
+    const buy = (amount: string, price: string) =>
+      new OrderBuilder(9)
+        .withSide(OrderSideEnum.Buy)
+        .withUserId(defaultWalletB.id)
+        .withAmount(amount)
+        .withPrice(price)
+        .build();
+    const save = (...orders: Order[]) =>
+      Promise.all(
+        orders.map((o) => executeTask(modRef.r.orderRepository.save(o))),
+      );
+    const balance = async (id: string) =>
+      FPF.pipe(
+        await executeTask(modRef.r.walletRepository.findById(id)),
+        O.map((w) => ({ usd: w.usd.toString(), btc: w.btc.toString() })),
+      );
+
+    it("Should fill a 0.3 BTC order with 0.1 and 0.2 BTC exactly", async () => {
+      // Resting orders must be older than the incoming one
+      const resting = [sell(20, "0.1", "100"), sell(21, "0.2", "100")];
+      const newOrder = buy("0.3", "100");
+      await save(...resting, newOrder);
+
+      await modRef.r.findMatchHandler.execute(new FindMatch(newOrder));
+
+      // With floats, 0.3 - 0.1 - 0.2 leaves the buy order open
+      const orders = await executeTask(modRef.r.orderRepository.findAll());
+      expect(orders.map((o) => o.status)).toEqual([
+        OrderStatusEnum.Complete,
+        OrderStatusEnum.Complete,
+        OrderStatusEnum.Complete,
+      ]);
+      expect(await balance(defaultWalletB.id)).toEqual(
+        O.some({
+          usd: defaultWalletB.usd.sub("0.09").toString(),
+          btc: defaultWalletB.btc.add("0.3").toString(),
+        }),
+      );
+    });
+
+    it("Should round fees to 10 places and keep the rest exact", async () => {
+      // One satoshi at 123.45 is worth 0.0000012345 USD
+      const resting = sell(20, "0.00000001", "123.45");
+      const newOrder = buy("0.00000001", "123.45");
+      await save(resting, newOrder);
+
+      await modRef.r.findMatchHandler.execute(new FindMatch(newOrder));
+
+      // Maker fee 0.0000000061725 rounds to 0.0000000062,
+      // taker fee 0.0000000037035 to 0.0000000037
+      expect(await balance(defaultWalletA.id)).toEqual(
+        O.some({
+          usd: defaultWalletA.usd.add("0.0000012283").toString(),
+          btc: defaultWalletA.btc.toString(),
+        }),
+      );
+      expect(await balance(defaultWalletB.id)).toEqual(
+        O.some({
+          usd: defaultWalletB.usd.sub("0.0000000037").toString(),
+          btc: defaultWalletB.btc.add("0.00000001").toString(),
+        }),
+      );
+    });
+  });
+
   describe("When the trade price is better than the buyer's price", () => {
     const balances = async () =>
       (await executeTask(modRef.r.walletRepository.findAll())).map(
         ({ usd, btc }) => ({ usd, btc }),
       );
-    const expectBalances = async (expected: { usd: number; btc: number }[]) => {
-      const actual = await balances();
-      expected.forEach(({ usd, btc }, i) => {
-        expect(actual[i]?.usd).toBeCloseTo(usd, 9);
-        expect(actual[i]?.btc).toBeCloseTo(btc, 9);
-      });
+    // Exact: the amounts are compared as decimal strings
+    const expectBalances = async (
+      expected: { usd: Decimal; btc: Decimal }[],
+    ) => {
+      expect(
+        (await balances()).map(({ usd, btc }) => [
+          usd.toString(),
+          btc.toString(),
+        ]),
+      ).toEqual(
+        expected.map(({ usd, btc }) => [usd.toString(), btc.toString()]),
+      );
     };
 
     it("Should refund the difference to a buyer who takes a cheaper sell", async () => {
@@ -380,12 +460,12 @@ describe("[Unit] Find Match", () => {
       // B reserved 120 USD, paid 100 and gets 20 back, less the taker fee
       await expectBalances([
         {
-          usd: defaultWalletA.usd + 100 - MATCH_MAKER_FEE * 100,
+          usd: defaultWalletA.usd.add(100).sub(MATCH_MAKER_FEE.mul(100)),
           btc: defaultWalletA.btc,
         },
         {
-          usd: defaultWalletB.usd + 20 - MATCH_TAKER_FEE * 100,
-          btc: defaultWalletB.btc + 1,
+          usd: defaultWalletB.usd.add(20).sub(MATCH_TAKER_FEE.mul(100)),
+          btc: defaultWalletB.btc.add(1),
         },
       ]);
     });
@@ -409,11 +489,11 @@ describe("[Unit] Find Match", () => {
       // The trade is at 90: A reserved 100 and gets 10 back, less the maker fee
       await expectBalances([
         {
-          usd: defaultWalletA.usd + 10 - MATCH_MAKER_FEE * 90,
-          btc: defaultWalletA.btc + 1,
+          usd: defaultWalletA.usd.add(10).sub(MATCH_MAKER_FEE.mul(90)),
+          btc: defaultWalletA.btc.add(1),
         },
         {
-          usd: defaultWalletB.usd + 90 - MATCH_TAKER_FEE * 90,
+          usd: defaultWalletB.usd.add(90).sub(MATCH_TAKER_FEE.mul(90)),
           btc: defaultWalletB.btc,
         },
       ]);
@@ -451,7 +531,7 @@ describe("[Unit] Find Match", () => {
 
     it.each([
       ["cancelled", { status: OrderStatusEnum.Cancelled }],
-      ["filled by another match", { filled: 0.5 }],
+      ["filled by another match", { filled: new Decimal(0.5) }],
     ])("Should save nothing if it was %s", async (_, change) => {
       const { oldOrder, newOrder } = await matchAgainstOldOrder();
       changeAfterRead(change);

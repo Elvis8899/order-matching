@@ -15,6 +15,7 @@ import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, O, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { PinoLogger } from "nestjs-pino";
 
@@ -39,11 +40,11 @@ export class CancelOrderHandler implements ICommandHandler<CancelOrder, void> {
   /** Returns the funds reserved for the part of the order not yet filled. */
   static walletChange(order: Order): Wallet {
     const isBuy = order.side === OrderSideEnum.Buy;
-    const unfilled = order.amount - order.filled;
+    const unfilled = order.amount.sub(order.filled);
     return {
       id: order.userId,
-      btc: isBuy ? 0 : unfilled,
-      usd: isBuy ? unfilled * order.price : 0,
+      btc: isBuy ? new Decimal(0) : unfilled,
+      usd: isBuy ? unfilled.mul(order.price) : new Decimal(0),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

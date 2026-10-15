@@ -26,6 +26,7 @@ import { fromInputRE } from "@shared/utils/application/fromInput";
 import { A, Apply, FPF, RE, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
+import { Decimal, USD_SCALE } from "@shared/utils/domain/decimal";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { PinoLogger } from "nestjs-pino";
 
@@ -69,43 +70,51 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
     matches: PartialMatch[];
   } {
     const isBuy = order.side === OrderSideEnum.Buy;
-    let amountRemaining = order.amount - order.filled;
+    let amountRemaining = order.amount.sub(order.filled);
     const matches: PartialMatch[] = [];
     const wallets: PartialWallet[] = [];
     const orders: OrderFill[] = [];
-    const manageWallet = (wallet: { id: string; btc: number; usd: number }) => {
+    const manageWallet = (wallet: PartialWallet) => {
       const existingWallet = wallets.find((w) => w.id === wallet.id);
       if (!existingWallet) {
         wallets.push(wallet);
         return;
       }
-      existingWallet.btc += wallet.btc;
-      existingWallet.usd += wallet.usd;
+      existingWallet.btc = existingWallet.btc.add(wallet.btc);
+      existingWallet.usd = existingWallet.usd.add(wallet.usd);
     };
-    const getNewStatus = (amount: number, filled: number) => {
-      return filled === amount
+    const getNewStatus = (amount: Decimal, filled: Decimal) => {
+      return filled.eq(amount)
         ? OrderStatusEnum.Complete
         : OrderStatusEnum.Active;
     };
+    // Fees are the only amounts rounded: a cent price times a satoshi amount
+    // is exact at USD_SCALE, but a fee rate adds three more places
+    const fee = (rate: Decimal, volume: Decimal) =>
+      volume.mul(rate).toDecimalPlaces(USD_SCALE);
+    const zero = new Decimal(0);
     for (const match of matchingOrders.sort((a, b) =>
-      isBuy ? b.price - a.price : a.price - b.price,
+      isBuy ? b.price.cmp(a.price) : a.price.cmp(b.price),
     )) {
       const price = isBuy ? match.price : order.price;
-      const amount = Math.min(amountRemaining, match.amount - match.filled);
-      const volume = amount * price;
-      const filled = match.filled + amount;
+      const amount = Decimal.min(
+        amountRemaining,
+        match.amount.sub(match.filled),
+      );
+      const volume = amount.mul(price);
+      const filled = match.filled.add(amount);
       // The buyer reserved USD at their own price; return what the trade
       // price saved them
-      const buyerRefund = ((isBuy ? order : match).price - price) * amount;
+      const buyerRefund = (isBuy ? order : match).price.sub(price).mul(amount);
       manageWallet({
         id: order.userId,
-        btc: isBuy ? amount : 0,
-        usd: (isBuy ? buyerRefund : volume) - MATCH_TAKER_FEE * volume,
+        btc: isBuy ? amount : zero,
+        usd: (isBuy ? buyerRefund : volume).sub(fee(MATCH_TAKER_FEE, volume)),
       });
       manageWallet({
         id: match.userId,
-        btc: isBuy ? 0 : amount,
-        usd: (isBuy ? volume : buyerRefund) - MATCH_MAKER_FEE * volume,
+        btc: isBuy ? zero : amount,
+        usd: (isBuy ? volume : buyerRefund).sub(fee(MATCH_MAKER_FEE, volume)),
       });
       matches.push({
         price: price,
@@ -115,16 +124,16 @@ export class FindMatchHandler implements ICommandHandler<FindMatch, void> {
         buyUserId: isBuy ? order.userId : match.userId,
         sellUserId: isBuy ? match.userId : order.userId,
       });
-      amountRemaining -= amount;
+      amountRemaining = amountRemaining.sub(amount);
       orders.push({
         order: { ...match, filled, status: getNewStatus(match.amount, filled) },
         readFilled: match.filled,
       });
-      if (amountRemaining <= 0) {
+      if (!amountRemaining.isPositive() || amountRemaining.isZero()) {
         break;
       }
     }
-    const filled = order.amount - amountRemaining;
+    const filled = order.amount.sub(amountRemaining);
     orders.push({
       order: { ...order, filled, status: getNewStatus(order.amount, filled) },
       readFilled: order.filled,

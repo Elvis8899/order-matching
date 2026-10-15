@@ -2,11 +2,12 @@ import { Match } from "@exchange/domain/match.entity";
 import { Order } from "@exchange/domain/order.entity";
 import { Wallet } from "@exchange/domain/wallet.entity";
 import { TE } from "@shared/utils/application/monads";
+import { Decimal } from "@shared/utils/domain/decimal";
 
 /** An order's new fill, and the fill it had when the matching read it. */
 export interface OrderFill {
   order: Order;
-  readFilled: number;
+  readFilled: Decimal;
 }
 
 /** Everything a matching run or a cancellation writes. Wallet amounts are

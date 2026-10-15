@@ -10,14 +10,15 @@ import {
   RepositoryDefaultPort,
 } from "@shared/utils/database/repository.port";
 import { DateType } from "@shared/utils/domain/dateType";
+import { DecimalType } from "@shared/utils/domain/decimal";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 import { UUID } from "@shared/uuid/entities/uuid";
 import z from "zod";
 
 export const OrderFindQuery = z.object({
   userId: UUID.optional(),
-  minPrice: z.number().optional(),
-  maxPrice: z.number().optional(),
+  minPrice: DecimalType.optional(),
+  maxPrice: DecimalType.optional(),
   status: z.enum(OrderStatusEnum).optional(),
   side: z.enum(OrderSideEnum).optional(),
   maxDate: DateType.optional(),

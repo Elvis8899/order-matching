@@ -24,6 +24,7 @@ import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/doma
 import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { FPF, O, TE } from "@shared/utils/application/monads";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
@@ -89,13 +90,14 @@ describe("[Unit] Cancel Order", () => {
     const wallet = await executeTask(
       modRef.r.walletRepository.findById(defaultWallet.id),
     );
-    const expectedUSD =
-      defaultWallet.usd + defaultOrder.amount * defaultOrder.price;
+    const expectedUSD = defaultWallet.usd.add(
+      defaultOrder.amount.mul(defaultOrder.price),
+    );
     const expectedBTC = defaultWallet.btc;
     expect(
       FPF.pipe(
         wallet,
-        O.filter((w: Wallet) => w.usd == expectedUSD && w.btc == expectedBTC),
+        O.filter((w: Wallet) => w.usd.eq(expectedUSD) && w.btc.eq(expectedBTC)),
         O.isSome,
       ),
     ).toBe(true);
@@ -124,11 +126,11 @@ describe("[Unit] Cancel Order", () => {
       modRef.r.walletRepository.findById(defaultWallet.id),
     );
     const expectedUSD = defaultWallet.usd;
-    const expectedBTC = defaultWallet.btc + defaultOrder.amount;
+    const expectedBTC = defaultWallet.btc.add(defaultOrder.amount);
     expect(
       FPF.pipe(
         wallet,
-        O.filter((w: Wallet) => w.usd == expectedUSD && w.btc == expectedBTC),
+        O.filter((w: Wallet) => w.usd.eq(expectedUSD) && w.btc.eq(expectedBTC)),
         O.isSome,
       ),
     ).toBe(true);
@@ -200,10 +202,10 @@ describe("[Unit] Cancel Order", () => {
       .withAmount(4)
       .build();
     await executeTask(
-      modRef.r.orderRepository.save({ ...buyOrder, filled: 1 }),
+      modRef.r.orderRepository.save({ ...buyOrder, filled: new Decimal(1) }),
     );
     await executeTask(
-      modRef.r.orderRepository.save({ ...sellOrder, filled: 3 }),
+      modRef.r.orderRepository.save({ ...sellOrder, filled: new Decimal(3) }),
     );
 
     // When both are cancelled
@@ -221,8 +223,8 @@ describe("[Unit] Cancel Order", () => {
     expect(wallet).toEqual(
       O.some(
         expect.objectContaining({
-          usd: defaultWallet.usd + 3 * buyOrder.price,
-          btc: defaultWallet.btc + 1,
+          usd: defaultWallet.usd.add(buyOrder.price.mul(3)),
+          btc: defaultWallet.btc.add(1),
         }),
       ),
     );
@@ -236,7 +238,7 @@ describe("[Unit] Cancel Order", () => {
       .mockImplementationOnce((id) =>
         FPF.pipe(
           findById(id),
-          TE.tap(() => save({ ...defaultOrder, filled: 0.5 })),
+          TE.tap(() => save({ ...defaultOrder, filled: new Decimal(0.5) })),
         ),
       );
 
@@ -250,7 +252,11 @@ describe("[Unit] Cancel Order", () => {
       executeTask(modRef.r.walletRepository.findById(defaultWallet.id)),
     ]);
     expect(order).toEqual(
-      O.some({ ...defaultOrder, filled: 0.5, status: OrderStatusEnum.Active }),
+      O.some({
+        ...defaultOrder,
+        filled: new Decimal(0.5),
+        status: OrderStatusEnum.Active,
+      }),
     );
     expect(wallet).toEqual(O.some(defaultWallet));
   });

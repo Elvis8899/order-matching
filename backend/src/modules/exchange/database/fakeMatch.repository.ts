@@ -7,6 +7,7 @@ import { Injectable } from "@nestjs/common";
 import { FPF, TE } from "@shared/utils/application/monads";
 import { validateFromUnknown } from "@shared/utils/application/validateWith";
 import { FakeRepository } from "@shared/utils/database/fakeRepository.base";
+import { Decimal, sumOf } from "@shared/utils/domain/decimal";
 import { TaskEither } from "fp-ts/lib/TaskEither";
 
 @Injectable()
@@ -31,10 +32,10 @@ export class FakeMatchRepository
       }),
       TE.bindTo("matchesLast24h"),
       TE.let("usdVolume24h", ({ matchesLast24h }) =>
-        matchesLast24h.reduce((s, i) => s + i.volume, 0),
+        sumOf(matchesLast24h.map((i) => i.volume)),
       ),
       TE.let("btcVolume24h", ({ matchesLast24h }) =>
-        matchesLast24h.reduce((s, i) => s + i.volume / i.price, 0),
+        sumOf(matchesLast24h.map((i) => i.volume.div(i.price))),
       ),
       TE.let("lastPrice", ({ matchesLast24h }) =>
         matchesLast24h[0] ? matchesLast24h[0].price : null,
@@ -43,10 +44,10 @@ export class FakeMatchRepository
         matchesLast24h.map((i) => i.price),
       ),
       TE.let("high24h", ({ prices }) =>
-        prices.length > 0 ? Math.max(...prices) : null,
+        prices.length > 0 ? Decimal.max(...prices) : null,
       ),
       TE.let("low24h", ({ prices }) =>
-        prices.length > 0 ? Math.min(...prices) : null,
+        prices.length > 0 ? Decimal.min(...prices) : null,
       ),
       TE.map(({ usdVolume24h, btcVolume24h, lastPrice, high24h, low24h }) => ({
         usdVolume24h,

@@ -33,7 +33,7 @@ describe("HTTP services", () => {
     });
 
     it("Should create an order", async () => {
-      const order = { userId: "u", side: "buy" as const, price: 1, amount: 2 };
+      const order = { userId: "u", side: "buy" as const, price: "1", amount: "2" };
       await ExchangeService.createOrder(order);
       expect(lastRequest()).toMatchObject({
         method: "post",

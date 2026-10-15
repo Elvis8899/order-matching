@@ -1,13 +1,9 @@
+import { formatAmount } from "@/lib/utils";
 import Pagination from "@/components/shared/Pagination";
 import { useExchange } from "@/lib/ExchangeContext";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 
-const fmt = (n: number, d = 2) =>
-  n.toLocaleString("en-US", {
-    minimumFractionDigits: d,
-    maximumFractionDigits: d,
-  });
 
 const MyActiveOrders = () => {
   const { myOrders, cancelUserOrder } = useExchange();
@@ -46,15 +42,15 @@ const MyActiveOrders = () => {
             )}
             {myOrders.data.data.map((o) => (
               <tr key={o.id} className="border-t border-border/50">
-                <td className="py-1">{fmt(o.amount - o.filled, 6)} BTC</td>
-                <td className="py-1">${fmt(o.price)}</td>
+                <td className="py-1">{formatAmount(Number(o.amount) - Number(o.filled), 6)} BTC</td>
+                <td className="py-1">${formatAmount(o.price)}</td>
                 <td
                   className={`py-1 ${o.side === "buy" ? "text-buy" : "text-sell"}`}
                 >
                   {o.side === "buy" ? "Buy" : "Sell"}
                 </td>
                 <td className="py-1 text-right text-muted-foreground">
-                  {((o.filled / o.amount) * 100).toFixed(0)}%
+                  {((Number(o.filled) / Number(o.amount)) * 100).toFixed(0)}%
                 </td>
                 <td className="py-1 text-right">
                   <button

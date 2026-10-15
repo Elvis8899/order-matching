@@ -34,7 +34,7 @@ export class FakeSettlementRepository implements SettlementRepository {
             O.filter(
               (stored) =>
                 stored.status === OrderStatusEnum.Active &&
-                stored.filled === readFilled,
+                stored.filled.eq(readFilled),
             ),
           ),
           TE.chain(TE.fromOption<Error>(orderChangedException)),

@@ -15,8 +15,8 @@ export class FakeWalletRepository
   protected merge(stored: Wallet, update: Partial<Wallet>): Wallet {
     return {
       ...stored,
-      btc: stored.btc + (update.btc || 0),
-      usd: stored.usd + (update.usd || 0),
+      btc: stored.btc.add(update.btc ?? 0),
+      usd: stored.usd.add(update.usd ?? 0),
       updatedAt: new Date(),
     };
   }

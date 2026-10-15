@@ -2,7 +2,11 @@ import { OrderRepository } from "@exchange/database/order.repository.port";
 import { WalletRepository } from "@exchange/database/wallet.repository.port";
 import { ORDER_CREATED } from "@exchange/domain/events/orderCreated.event";
 import { insufficientWalletFundsException } from "@exchange/domain/exchange.errors";
-import { Order, OrderSideEnum } from "@exchange/domain/order.entity";
+import {
+  NewOrderLimits,
+  Order,
+  OrderSideEnum,
+} from "@exchange/domain/order.entity";
 import { Wallet } from "@exchange/domain/wallet.entity";
 import { CreateOrderDto } from "@exchange/dtos/order.dto";
 import { CommandHandler, ICommand, ICommandHandler } from "@nestjs/cqrs";
@@ -12,6 +16,7 @@ import { fromInputRE } from "@shared/utils/application/fromInput";
 import { FPF, O, RE, RTE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { performRTE } from "@shared/utils/application/perform";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { RealUUIDGeneratorService } from "@shared/uuid/adapters/secondaries/realUUIDGenerator.service";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { UserRepository } from "@user/database/user.repository.port";
@@ -39,8 +44,8 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrder, void> {
     const isBuy = order.side === OrderSideEnum.Buy;
     return {
       id: order.userId,
-      btc: isBuy ? 0 : -order.amount,
-      usd: isBuy ? -(order.amount * order.price) : 0,
+      btc: isBuy ? new Decimal(0) : order.amount.neg(),
+      usd: isBuy ? order.amount.mul(order.price).neg() : new Decimal(0),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -55,6 +60,7 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrder, void> {
         fromInputRE(UUID, "uuid")(this.uuidGeneratorService.generateUUID()),
       ),
       RE.chain(fromInputRE(Order, "Order")),
+      RE.tap(fromInputRE(NewOrderLimits, "Order")),
       RTE.fromReaderEither,
 
       // Check user exists
@@ -86,7 +92,8 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrder, void> {
           RTE.map(
             O.filter(
               (w) =>
-                w.btc + data.wallet.btc >= 0 && w.usd + data.wallet.usd >= 0,
+                !w.btc.add(data.wallet.btc).isNegative() &&
+                !w.usd.add(data.wallet.usd).isNegative(),
             ),
           ),
           RTE.chainW(RTE.fromOption<Error>(insufficientWalletFundsException)),

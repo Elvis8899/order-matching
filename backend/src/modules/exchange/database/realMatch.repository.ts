@@ -15,6 +15,7 @@ import {
   validateMaybeRow,
   validateRows,
 } from "@shared/utils/database/rowValidation";
+import { Decimal, DecimalType } from "@shared/utils/domain/decimal";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 import { unknownException } from "@shared/utils/domain/shared.errors";
 
@@ -153,27 +154,31 @@ export class RealMatchRepository implements MatchRepository {
       _sum: { volume: true },
       where: { createdAt: { gt: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
     });
-    const multiplication = TE.tryCatchK(
+    // Each match's volume is its BTC amount times its price, so this sums
+    // the BTC amounts exactly
+    const btcVolume = TE.tryCatchK(
       () =>
         this.prisma.$queryRaw<
-          [{ usdVolume: number }]
-        >`select sum(volume / price) as btcVolume from "Match" where "createdAt" > now() - interval '24 hours'`,
+          [{ btcVolume: Prisma.Decimal | null }]
+        >`select sum(volume / price) as "btcVolume" from "Match" where "createdAt" > now() - interval '24 hours'`,
       this.defaultErrorException,
     );
+    const toDecimal = (value: Prisma.Decimal | null) =>
+      value === null ? null : DecimalType.parse(value);
     return FPF.pipe(
       aggregate,
       TE.bindTo("aggregate"),
-      TE.bind("btc", multiplication),
+      TE.bind("btc", btcVolume),
       TE.bind("findFirst", () =>
         this.findFirst({ orderBy: { createdAt: "desc" } }),
       ),
       TE.map((data) => {
         return {
-          usdVolume24h: data.aggregate._sum.volume || 0,
-          btcVolume24h: Object.values(data.btc[0])[0] || 0,
-          lastPrice: data.findFirst ? data.findFirst.price : null,
-          high24h: data.aggregate._max.price,
-          low24h: data.aggregate._min.price,
+          usdVolume24h: toDecimal(data.aggregate._sum.volume) ?? new Decimal(0),
+          btcVolume24h: toDecimal(data.btc[0].btcVolume) ?? new Decimal(0),
+          lastPrice: toDecimal(data.findFirst?.price ?? null),
+          high24h: toDecimal(data.aggregate._max.price),
+          low24h: toDecimal(data.aggregate._min.price),
         };
       }),
     );

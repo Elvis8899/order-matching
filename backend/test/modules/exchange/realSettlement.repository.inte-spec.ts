@@ -8,6 +8,7 @@ import { OrderStatusEnum } from "@exchange/domain/order.entity";
 import { InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "@shared/prisma/adapter/prisma.service";
 import { executeTask } from "@shared/utils/application/executeTask";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
 import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { UserBuilder } from "@test/dataBuilders/userBuilder";
@@ -63,31 +64,40 @@ describe("[Integration] Settlement repository", () => {
   const settlement = (): Settlement => ({
     orders: [
       {
-        order: { ...buyOrder, filled: 1 },
-        readFilled: 0,
+        order: { ...buyOrder, filled: new Decimal(1) },
+        readFilled: new Decimal(0),
       },
       {
-        order: { ...sellOrder, filled: 1, status: OrderStatusEnum.Complete },
-        readFilled: 0,
+        order: {
+          ...sellOrder,
+          filled: new Decimal(1),
+          status: OrderStatusEnum.Complete,
+        },
+        readFilled: new Decimal(0),
       },
     ],
     wallets: [
-      { ...buyerWallet, btc: 1, usd: -0.3 },
-      { ...sellerWallet, btc: 0, usd: 99.5 },
+      { ...buyerWallet, btc: new Decimal(1), usd: new Decimal("-0.3") },
+      { ...sellerWallet, btc: new Decimal(0), usd: new Decimal("99.5") },
     ],
     // Its default ids are these orders and users
     matches: [new MatchBuilder().build()],
   });
 
+  // Amounts as decimal strings, so they compare exactly
   const stored = async () => ({
-    orders: await prisma().order.findMany({
-      select: { id: true, filled: true, status: true },
-      orderBy: { id: "asc" },
-    }),
-    wallets: await prisma().wallet.findMany({
-      select: { id: true, btc: true, usd: true },
-      orderBy: { id: "asc" },
-    }),
+    orders: (
+      await prisma().order.findMany({
+        select: { id: true, filled: true, status: true },
+        orderBy: { id: "asc" },
+      })
+    ).map((o) => ({ ...o, filled: o.filled.toString() })),
+    wallets: (
+      await prisma().wallet.findMany({
+        select: { id: true, btc: true, usd: true },
+        orderBy: { id: "asc" },
+      })
+    ).map((w) => ({ ...w, btc: w.btc.toString(), usd: w.usd.toString() })),
     matches: await prisma().match.count(),
   });
 
@@ -110,12 +120,12 @@ describe("[Integration] Settlement repository", () => {
 
     expect(await stored()).toEqual({
       orders: [
-        { id: buyOrder.id, filled: 1, status: OrderStatusEnum.Active },
-        { id: sellOrder.id, filled: 1, status: OrderStatusEnum.Complete },
+        { id: buyOrder.id, filled: "1", status: OrderStatusEnum.Active },
+        { id: sellOrder.id, filled: "1", status: OrderStatusEnum.Complete },
       ],
       wallets: [
-        { id: buyer.id, btc: buyerWallet.btc + 1, usd: buyerWallet.usd - 0.3 },
-        { id: seller.id, btc: sellerWallet.btc, usd: sellerWallet.usd + 99.5 },
+        { id: buyer.id, btc: "101", usd: "99999.7" },
+        { id: seller.id, btc: "100", usd: "100099.5" },
       ],
       matches: 1,
     });

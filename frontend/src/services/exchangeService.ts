@@ -5,12 +5,13 @@ import {
   PaginatedResponse,
   PaginationOptions,
   Stats,
+  Wallet,
 } from "@/lib/types";
 import { http } from "./api";
 
 export class ExchangeService {
   static async getWalletById() {
-    return http.get<{ btc: number; usd: number }>("wallet");
+    return http.get<Wallet>("wallet");
   }
 
   static async createOrder(

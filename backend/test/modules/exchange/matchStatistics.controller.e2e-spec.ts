@@ -31,11 +31,11 @@ describe(`[e2e] GET ${v1Route}`, () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      usdVolume24h: match.volume,
-      btcVolume24h: match.volume / match.price,
-      lastPrice: match.price,
-      high24h: match.price,
-      low24h: match.price,
+      usdVolume24h: match.volume.toString(),
+      btcVolume24h: match.volume.div(match.price).toString(),
+      lastPrice: match.price.toString(),
+      high24h: match.price.toString(),
+      low24h: match.price.toString(),
     });
   });
 
@@ -44,8 +44,8 @@ describe(`[e2e] GET ${v1Route}`, () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      usdVolume24h: 0,
-      btcVolume24h: 0,
+      usdVolume24h: "0",
+      btcVolume24h: "0",
       lastPrice: null,
       high24h: null,
       low24h: null,

@@ -13,7 +13,7 @@ describe("GlobalMatches", () => {
   it("Should show each match's price and volume", () => {
     renderWithExchange(<GlobalMatches />, {
       globalMatches: paginated([
-        { id: "match-1", price: 30000, volume: 0.123456 } as Match,
+        { id: "match-1", price: "30000", volume: "0.123456" } as Match,
       ]),
     });
 

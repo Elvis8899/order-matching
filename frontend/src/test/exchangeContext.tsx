@@ -28,13 +28,13 @@ export function exchangeState(
 ): ExchangeState {
   return {
     user: alice,
-    wallet: { btc: 0, usd: 0 },
+    wallet: { btc: "0", usd: "0" },
     login: vi.fn(),
     logout: vi.fn(),
     stats: {
       lastPrice: null,
-      btcVolume24h: 0,
-      usdVolume24h: 0,
+      btcVolume24h: "0",
+      usdVolume24h: "0",
       high24h: null,
       low24h: null,
     },

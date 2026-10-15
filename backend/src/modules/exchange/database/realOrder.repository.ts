@@ -12,7 +12,7 @@ import {
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "@shared/prisma/adapter/prisma.service";
-import { E, FPF, O, TE } from "@shared/utils/application/monads";
+import { A, E, FPF, O, TE } from "@shared/utils/application/monads";
 import { noop } from "@shared/utils/application/noop";
 import { validateFromUnknown } from "@shared/utils/application/validateWith";
 import { Paginated } from "@shared/utils/database/repository.port";
@@ -21,14 +21,25 @@ import {
   validateMaybeRow,
   validateRows,
 } from "@shared/utils/database/rowValidation";
+import { DecimalType } from "@shared/utils/domain/decimal";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 import { unknownException } from "@shared/utils/domain/shared.errors";
+import { z } from "zod";
 
 @Injectable()
 export class RealOrderRepository implements OrderRepository {
   constructor(private prisma: PrismaService) {}
 
   private baseValidator = validateFromUnknown(Order, "Order");
+
+  // Every price level has orders, so neither sum is null
+  private groupedRowValidator = validateFromUnknown(
+    z.object({
+      price: DecimalType,
+      _sum: z.object({ amount: DecimalType, filled: DecimalType }),
+    }),
+    "GroupedOrder",
+  );
 
   private defaultErrorException = unknownException;
 
@@ -180,10 +191,6 @@ export class RealOrderRepository implements OrderRepository {
     params: PaginatedQueryParams<GroupedOrderQuery>,
   ): TE.TaskEither<Error, Paginated<GroupedOrder>> => {
     const { side } = params.query;
-    // Prisma reports a sum over no rows as null
-    const sumOf = (value: number | null) => value || 0;
-    const remaining = (sum: { amount: number | null; filled: number | null }) =>
-      sumOf(sum.amount) - sumOf(sum.filled);
     const levels = TE.tryCatchK(
       (skip: number, take: number) =>
         this.prisma.order.groupBy({
@@ -215,12 +222,15 @@ export class RealOrderRepository implements OrderRepository {
           ),
       },
       (rows): E.Either<Error, GroupedOrder[]> =>
-        E.right(
-          rows.map(({ price, _sum }) => ({
-            price,
-            amount: remaining(_sum),
-            volume: price * remaining(_sum),
-          })),
+        FPF.pipe(
+          rows,
+          validateRows(this.groupedRowValidator),
+          E.map(
+            A.map(({ price, _sum }) => {
+              const remaining = _sum.amount.sub(_sum.filled);
+              return { price, amount: remaining, volume: price.mul(remaining) };
+            }),
+          ),
         ),
     )(params);
   };

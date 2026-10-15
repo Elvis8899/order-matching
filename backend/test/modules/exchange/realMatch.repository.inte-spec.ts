@@ -6,6 +6,7 @@ import {
   executeTask,
   executeTasks,
 } from "@shared/utils/application/executeTask";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { MatchBuilder } from "@test/dataBuilders/matchBuilder";
 import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
@@ -164,7 +165,7 @@ describe("[Integration] Match repository", () => {
 
     expect(result).toMatchObject({
       usdVolume24h: match.volume,
-      btcVolume24h: match.volume / match.price,
+      btcVolume24h: match.volume.div(match.price),
       lastPrice: match.price,
       high24h: match.price,
       low24h: match.price,
@@ -179,8 +180,8 @@ describe("[Integration] Match repository", () => {
     const result = await executeTask(inteM.r.matchRepository.getStatistics());
 
     expect(result).toMatchObject({
-      usdVolume24h: 0,
-      btcVolume24h: 0,
+      usdVolume24h: new Decimal(0),
+      btcVolume24h: new Decimal(0),
       lastPrice: null,
       high24h: null,
       low24h: null,

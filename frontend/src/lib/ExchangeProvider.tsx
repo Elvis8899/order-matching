@@ -11,7 +11,7 @@ import {
 import { subscribe } from "./exchange";
 import { AuthService } from "@/services/authService";
 import { ExchangeService } from "@/services/exchangeService";
-import { ExchangeContext } from "@/lib/ExchangeContext";
+import { ExchangeContext, FormFill } from "@/lib/ExchangeContext";
 import { socket } from "@/services/socket";
 import { onSessionExpired, refreshAccessToken } from "@/services/api";
 import { CredentialsStorage, USER_KEY } from "@/services/credentials";
@@ -20,8 +20,8 @@ import { defaultPaginatedResponse, usePaginatedHook } from "@/lib/utils";
 export function ExchangeProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(AuthService.getUser());
   const [stats, setStats] = useState<Stats>({
-    btcVolume24h: 0,
-    usdVolume24h: 0,
+    btcVolume24h: "0",
+    usdVolume24h: "0",
     lastPrice: null,
     high24h: null,
     low24h: null,
@@ -75,16 +75,10 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
       [],
     ),
   );
-  const [wallet, setWallet] = useState<Wallet>({ btc: 0, usd: 0 });
+  const [wallet, setWallet] = useState<Wallet>({ btc: "0", usd: "0" });
   const [tick, setTick] = useState(0);
-  const [fillFormAsk, setFillFormAsk] = useState<{
-    price: number;
-    amount: number;
-  } | null>(null);
-  const [fillFormBuy, setFillFormBuy] = useState<{
-    price: number;
-    amount: number;
-  } | null>(null);
+  const [fillFormAsk, setFillFormAsk] = useState<FormFill | null>(null);
+  const [fillFormBuy, setFillFormBuy] = useState<FormFill | null>(null);
   let userId = user?.id;
   useEffect(() => {
     // no-op if the socket is already connected
@@ -190,7 +184,7 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
   const resetSession = useCallback(() => {
     socket.disconnect();
     setUser(null);
-    setWallet({ btc: 0, usd: 0 });
+    setWallet({ btc: "0", usd: "0" });
     resetMyOrders();
     resetMyMatches();
     resetGlobalMatches();
@@ -218,8 +212,8 @@ export function ExchangeProvider({ children }: { children: React.ReactNode }) {
 
   const submitOrder = async (
     side: "buy" | "sell",
-    price: number,
-    amount: number,
+    price: string,
+    amount: string,
   ) => {
     if (!user) return { success: false, error: "Not logged in" };
     const resultPromise = await ExchangeService.createOrder({

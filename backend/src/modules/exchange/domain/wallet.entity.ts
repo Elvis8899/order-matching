@@ -1,12 +1,13 @@
 import { BaseDateEntity } from "@shared/utils/domain/dateEntity.base";
+import { DecimalType } from "@shared/utils/domain/decimal";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { z } from "zod";
 
 export const Wallet = z
   .object({
     id: UUID,
-    btc: z.number(),
-    usd: z.number(),
+    btc: DecimalType,
+    usd: DecimalType,
   })
   .and(BaseDateEntity);
 

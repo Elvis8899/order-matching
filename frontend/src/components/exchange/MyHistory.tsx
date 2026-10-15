@@ -1,11 +1,7 @@
+import { formatAmount } from "@/lib/utils";
 import { useExchange } from "@/lib/ExchangeContext";
 import Pagination from "@/components/shared/Pagination";
 
-const fmt = (n: number, d = 2) =>
-  n.toLocaleString("en-US", {
-    minimumFractionDigits: d,
-    maximumFractionDigits: d,
-  });
 
 const MyHistory = () => {
   const { myMatches, user } = useExchange();
@@ -39,8 +35,8 @@ const MyHistory = () => {
               const isBuy = m.buyUserId === user?.id;
               return (
                 <tr key={m.id} className="border-t border-border/50">
-                  <td className="py-1">${fmt(m.price)}</td>
-                  <td className="py-1">{fmt(m.volume, 6)} BTC</td>
+                  <td className="py-1">${formatAmount(m.price)}</td>
+                  <td className="py-1">{formatAmount(m.volume, 6)} BTC</td>
                   <td className={`py-1 ${isBuy ? "text-buy" : "text-sell"}`}>
                     {isBuy ? "Buy" : "Sell"}
                   </td>

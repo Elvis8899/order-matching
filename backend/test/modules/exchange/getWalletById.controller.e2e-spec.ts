@@ -39,6 +39,11 @@ describe(`[e2e] GET ${v1Route}`, () => {
     const response = await testModule.request().get(v1Route);
     expect(response.status).toBe(200);
     expect(response.body?.id).toBe(wallet.id);
+    // Amounts are decimal strings, so no precision is lost in JSON
+    expect(response.body).toMatchObject({
+      usd: wallet.usd.toString(),
+      btc: wallet.btc.toString(),
+    });
   });
 
   it("Should respond 404 when wallet not found", async () => {

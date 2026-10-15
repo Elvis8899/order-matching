@@ -9,10 +9,12 @@ import { WalletRepository } from "@exchange/database/wallet.repository.port";
 import { InsufficientWalletFundsException } from "@exchange/domain/exchange.errors";
 import { OrderSideEnum } from "@exchange/domain/order.entity";
 import { Wallet } from "@exchange/domain/wallet.entity";
+import { UnprocessableEntityException } from "@nestjs/common";
 import { DomainEventPublisher } from "@shared/domainEventPublisher/adapters/domainEventPublisher";
 import { DomainEventPublisherModule } from "@shared/domainEventPublisher/domainEventPublisher.module";
 import { executeTask } from "@shared/utils/application/executeTask";
 import { FPF, O } from "@shared/utils/application/monads";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { OrderBuilder } from "@test/dataBuilders/orderBuilder";
 import { UserBuilder } from "@test/dataBuilders/userBuilder";
 import { WalletBuilder } from "@test/dataBuilders/walletBuilder";
@@ -71,12 +73,14 @@ describe("[Unit] Create Order", () => {
     const wallet = await executeTask(
       modRef.r.walletRepository.findById(defaultWallet.id),
     );
-    const expectedUSD = defaultWallet.usd - order.amount * order.price;
+    const expectedUSD = defaultWallet.usd.sub(
+      new Decimal(order.amount).mul(new Decimal(order.price)),
+    );
     const expectedBTC = defaultWallet.btc;
     expect(
       FPF.pipe(
         wallet,
-        O.filter((w: Wallet) => w.usd == expectedUSD && w.btc == expectedBTC),
+        O.filter((w: Wallet) => w.usd.eq(expectedUSD) && w.btc.eq(expectedBTC)),
         O.isSome,
       ),
     ).toBe(true);
@@ -104,30 +108,69 @@ describe("[Unit] Create Order", () => {
       modRef.r.walletRepository.findById(defaultWallet.id),
     );
     const expectedUSD = defaultWallet.usd;
-    const expectedBTC = defaultWallet.btc - order.amount;
+    const expectedBTC = defaultWallet.btc.sub(new Decimal(order.amount));
     expect(
       FPF.pipe(
         wallet,
-        O.filter((w: Wallet) => w.usd == expectedUSD && w.btc == expectedBTC),
+        O.filter((w: Wallet) => w.usd.eq(expectedUSD) && w.btc.eq(expectedBTC)),
         O.isSome,
       ),
     ).toBe(true);
   });
 
   it("Should create order without optional keys", async () => {
-    //Given a potentially valid name
+    // Given only the keys a client sends
+    const { userId, side, price, amount } = new OrderBuilder().buildCreateDTO();
 
-    const order = new OrderBuilder().buildCreateDTO();
     //When we create a order
     const resultPromise = modRef.r.createOrderHandler.execute(
-      new CreateOrder(order),
+      new CreateOrder({ userId, side, price, amount }),
     );
 
-    //Then it should have created a order
+    //Then it should have created an unfilled order
     await expect(resultPromise).resolves.toEqual(undefined);
 
     const orders = await executeTask(modRef.r.orderRepository.findAll());
     expect(orders.length).toEqual(1);
+    expect(orders[0]?.filled.isZero()).toBe(true);
+  });
+
+  it("Should reserve exactly the order's cost from decimal strings", async () => {
+    const order = new OrderBuilder()
+      .withPrice("30000.55")
+      .withAmount("0.1")
+      .buildCreateDTO();
+
+    await modRef.r.createOrderHandler.execute(new CreateOrder(order));
+
+    const wallet = await executeTask(
+      modRef.r.walletRepository.findById(defaultWallet.id),
+    );
+    expect(O.map((w: Wallet) => w.usd.toString())(wallet)).toEqual(
+      O.some(defaultWallet.usd.sub("3000.055").toString()),
+    );
+  });
+
+  it.each([
+    ["a price with more than 2 places", { price: "100.001" }],
+    ["a zero price", { price: "0" }],
+    ["a negative price", { price: "-100" }],
+    ["an amount with more than 8 places", { amount: "0.000000001" }],
+    ["a zero amount", { amount: 0 }],
+    ["a negative amount", { amount: "-1" }],
+    ["an amount in exponent notation", { amount: "1e-3" }],
+  ])("Should not create an order with %s", async (_, change) => {
+    const order = Object.assign(new OrderBuilder().buildCreateDTO(), change);
+
+    const resultPromise = modRef.r.createOrderHandler.execute(
+      new CreateOrder(order),
+    );
+
+    await expect(resultPromise).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    );
+    const orders = await executeTask(modRef.r.orderRepository.findAll());
+    expect(orders).toEqual([]);
   });
 
   it("Should emit domain event when order is created", async () => {

@@ -3,9 +3,10 @@ export interface User {
   username: string;
   role: "admin" | "client";
 }
+// Money arrives as decimal strings (e.g. "100.5") so no precision is lost
 export interface Wallet {
-  btc: number;
-  usd: number;
+  btc: string;
+  usd: string;
 }
 
 export type OrderSide = "buy" | "sell";
@@ -15,17 +16,17 @@ export interface Order {
   id: string;
   userId: string;
   side: OrderSide;
-  price: number; // USD per BTC
-  amount: number; // BTC
-  filled: number; // BTC filled so far
+  price: string; // USD per BTC
+  amount: string; // BTC
+  filled: string; // BTC filled so far
   status: OrderStatus;
   createdAt: number;
 }
 
 export interface Match {
   id: string;
-  price: number;
-  volume: number; // BTC
+  price: string;
+  volume: string; // USD
   buyOrderId: string;
   sellOrderId: string;
   buyUserId: string;
@@ -34,17 +35,17 @@ export interface Match {
 }
 
 export interface GroupedOrder {
-  price: number;
-  amount: number;
-  volume: number;
+  price: string;
+  amount: string;
+  volume: string;
 }
 
 export interface Stats {
-  lastPrice: number | null;
-  btcVolume24h: number;
-  usdVolume24h: number;
-  high24h: number | null;
-  low24h: number | null;
+  lastPrice: string | null;
+  btcVolume24h: string;
+  usdVolume24h: string;
+  high24h: string | null;
+  low24h: string | null;
 }
 
 export interface PaginationOptions {

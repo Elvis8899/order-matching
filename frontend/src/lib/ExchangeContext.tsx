@@ -9,6 +9,12 @@ import {
   GroupedOrder,
 } from "./types";
 
+// An order book level picked to fill an order form
+export interface FormFill {
+  price: string;
+  amount: string;
+}
+
 interface ExchangeState {
   user: User | null;
   wallet: Wallet | null;
@@ -21,17 +27,18 @@ interface ExchangeState {
   globalMatches: PaginationHook<Match>;
   myOrders: PaginationHook<Order>;
   myMatches: PaginationHook<Match>;
+  // Price and amount are decimal strings, sent to the API as typed
   submitOrder: (
     side: "buy" | "sell",
-    price: number,
-    amount: number,
+    price: string,
+    amount: string,
   ) => Promise<{ success: boolean; error?: string }>;
   cancelUserOrder: (orderId: string) => Promise<boolean>;
   refresh: () => void;
-  fillFormAsk: { price: number; amount: number } | null;
-  setFillFormAsk: (v: { price: number; amount: number } | null) => void;
-  fillFormBuy: { price: number; amount: number } | null;
-  setFillFormBuy: (v: { price: number; amount: number } | null) => void;
+  fillFormAsk: FormFill | null;
+  setFillFormAsk: (v: FormFill | null) => void;
+  fillFormBuy: FormFill | null;
+  setFillFormBuy: (v: FormFill | null) => void;
 }
 
 export const ExchangeContext = createContext<ExchangeState>(null!);

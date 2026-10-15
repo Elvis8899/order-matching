@@ -14,6 +14,7 @@ import { TE } from "@shared/utils/application/monads";
 import { validateFromUnknown } from "@shared/utils/application/validateWith";
 import { FakeRepository } from "@shared/utils/database/fakeRepository.base";
 import { Paginated } from "@shared/utils/database/repository.port";
+import { Decimal } from "@shared/utils/domain/decimal";
 import { PaginatedQueryParams } from "@shared/utils/domain/query.base";
 
 @Injectable()
@@ -36,8 +37,8 @@ export class FakeOrderRepository
       (!side || order.side === side) &&
       (!status || order.status === status) &&
       (!maxDate || order.createdAt <= maxDate) &&
-      (minPrice === undefined || order.price >= minPrice) &&
-      (maxPrice === undefined || order.price <= maxPrice);
+      (minPrice === undefined || order.price.gte(minPrice)) &&
+      (maxPrice === undefined || order.price.lte(maxPrice));
   }
 
   /** Active orders of one side, summed per price level (best price first). */
@@ -46,22 +47,25 @@ export class FakeOrderRepository
   ): TE.TaskEither<Error, Paginated<GroupedOrder>> => {
     const { side } = params.query;
     const levels = () => {
-      const byPrice = new Map<number, GroupedOrder>();
+      // Keyed by the price's string, since equal Decimals are distinct objects
+      const byPrice = new Map<string, GroupedOrder>();
       for (const order of this.list(
         this.matchesQuery({ side, status: OrderStatusEnum.Active }),
       )) {
-        const level = byPrice.get(order.price) ?? {
+        const key = order.price.toString();
+        const level = byPrice.get(key) ?? {
           price: order.price,
-          amount: 0,
-          volume: 0,
+          amount: new Decimal(0),
+          volume: new Decimal(0),
         };
-        level.amount += order.amount;
-        level.volume += order.price * order.amount;
-        byPrice.set(order.price, level);
+        const remaining = order.amount.sub(order.filled);
+        level.amount = level.amount.add(remaining);
+        level.volume = level.volume.add(order.price.mul(remaining));
+        byPrice.set(key, level);
       }
       const direction = side === OrderSideEnum.Buy ? -1 : 1;
       return [...byPrice.values()].sort(
-        (a, b) => direction * (a.price - b.price),
+        (a, b) => direction * a.price.cmp(b.price),
       );
     };
     return this.pageOf(levels)(params);

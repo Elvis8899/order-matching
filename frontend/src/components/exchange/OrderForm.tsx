@@ -19,8 +19,8 @@ const OrderForm = ({ side }: { side: OrderSide }) => {
   const setFillForm = isBuy ? setFillFormBuy : setFillFormAsk;
   useEffect(() => {
     if (fillForm) {
-      setPrice(fillForm.price.toString());
-      setAmount(fillForm.amount.toString());
+      setPrice(fillForm.price);
+      setAmount(fillForm.amount);
       setFillForm(null);
     }
   }, [fillForm, setFillForm]);
@@ -29,13 +29,12 @@ const OrderForm = ({ side }: { side: OrderSide }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const a = parseFloat(amount);
-    const p = parseFloat(price);
-    if (!a || a <= 0 || !p || p <= 0) {
+    // Only checked here; the strings are sent as typed, so no precision is lost
+    if (!(Number(amount) > 0) || !(Number(price) > 0)) {
       toast.error("Enter valid amount and price");
       return;
     }
-    const result = await submitOrder(side, p, a);
+    const result = await submitOrder(side, price, amount);
     if (result.success) {
       toast.success(`${isBuy ? "Buy" : "Sell"} order placed`);
       setAmount("");

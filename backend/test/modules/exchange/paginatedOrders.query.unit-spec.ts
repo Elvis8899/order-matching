@@ -110,10 +110,10 @@ describe("[Unit] List Orders", () => {
         query: { maxDate: new Date(Date.now() - 24 * 60 * 60 * 1000) },
       }),
       modRef.r.orderRepository.findAll({
-        query: { minPrice: order.price + 1 },
+        query: { minPrice: order.price.add(1) },
       }),
       modRef.r.orderRepository.findAll({
-        query: { maxPrice: order.price - 1 },
+        query: { maxPrice: order.price.sub(1) },
       }),
       modRef.r.orderRepository.findAll({
         query: { status: OrderStatusEnum.Cancelled },
@@ -133,10 +133,10 @@ describe("[Unit] List Orders", () => {
         query: { maxDate: new Date(Date.now() + 24 * 60 * 60 * 1000) },
       }),
       modRef.r.orderRepository.findAll({
-        query: { minPrice: order.price - 1 },
+        query: { minPrice: order.price.sub(1) },
       }),
       modRef.r.orderRepository.findAll({
-        query: { maxPrice: order.price + 1 },
+        query: { maxPrice: order.price.add(1) },
       }),
       modRef.r.orderRepository.findAll({
         query: { status: order.status },
@@ -152,8 +152,8 @@ describe("[Unit] List Orders", () => {
           userId: order.userId,
           side: order.side,
           status: order.status,
-          maxPrice: order.price + 1,
-          minPrice: order.price - 1,
+          maxPrice: order.price.add(1),
+          minPrice: order.price.sub(1),
           maxDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
       }),

@@ -1,11 +1,7 @@
+import { formatAmount } from "@/lib/utils";
 import Pagination from "@/components/shared/Pagination";
 import { useExchange } from "@/lib/ExchangeContext";
 
-const fmt = (n: number, d = 2) =>
-  n.toLocaleString("en-US", {
-    minimumFractionDigits: d,
-    maximumFractionDigits: d,
-  });
 
 const GlobalMatches = () => {
   const { globalMatches } = useExchange();
@@ -38,9 +34,9 @@ const GlobalMatches = () => {
             )}
             {items.map((m) => (
               <tr key={m.id} className="border-t border-border/50">
-                <td className="py-1 text-foreground">${fmt(m.price)}</td>
+                <td className="py-1 text-foreground">${formatAmount(m.price)}</td>
                 <td className="py-1 text-right text-muted-foreground">
-                  {fmt(m.volume, 6)} BTC
+                  {formatAmount(m.volume, 6)} BTC
                 </td>
               </tr>
             ))}

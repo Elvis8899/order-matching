@@ -6,8 +6,8 @@ import { alice, paginated, renderWithExchange } from "@/test/exchangeContext";
 
 const match = (overrides: Partial<Match> = {}): Match => ({
   id: "match-1",
-  price: 30000,
-  volume: 0.5,
+  price: "30000",
+  volume: "0.5",
   buyOrderId: "buy-order",
   sellOrderId: "sell-order",
   buyUserId: alice.id,

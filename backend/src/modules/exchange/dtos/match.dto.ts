@@ -1,19 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Decimal, decimalApiProperty } from "@shared/utils/domain/decimal";
 import { BaseEntityDto } from "@shared/utils/dtos/baseEntity.dto";
 import { PaginatedResponseDto } from "@shared/utils/dtos/paginated.response.base";
 
 export class MatchDto extends BaseEntityDto {
-  @ApiProperty({
-    description: "preço da ordem",
-    required: true,
-  })
-  price!: number;
+  @ApiProperty(decimalApiProperty("preço da ordem", "30000.5"))
+  price!: Decimal;
 
-  @ApiProperty({
-    description: "quantidade da ordem",
-    required: true,
-  })
-  volume!: number;
+  @ApiProperty(decimalApiProperty("quantidade da ordem", "15000.25"))
+  volume!: Decimal;
 
   @ApiProperty({
     description: "ID da ordem de compra",
@@ -41,31 +36,25 @@ export class MatchDto extends BaseEntityDto {
 }
 
 export class MatchStatisticsDto {
+  @ApiProperty(decimalApiProperty("Volume de BTC em 24h", "1.5"))
+  btcVolume24h!: Decimal;
+  @ApiProperty(decimalApiProperty("Volume de USD em 24h", "45000.75"))
+  usdVolume24h!: Decimal;
   @ApiProperty({
-    description: "Volume de BTC em 24h",
-    required: true,
+    ...decimalApiProperty("Ultimo preço", "30000.5"),
+    nullable: true,
   })
-  btcVolume24h!: number;
+  lastPrice!: Decimal | null;
   @ApiProperty({
-    description: "Volume de USD em 24h",
-    required: true,
+    ...decimalApiProperty("Maior preço em 24h", "31000"),
+    nullable: true,
   })
-  usdVolume24h!: number;
+  high24h!: Decimal | null;
   @ApiProperty({
-    description: "Ultimo preço",
-    required: false,
+    ...decimalApiProperty("Menor preço em 24h", "29000"),
+    nullable: true,
   })
-  lastPrice!: number | null;
-  @ApiProperty({
-    description: "Maior preço em 24h",
-    required: false,
-  })
-  high24h!: number | null;
-  @ApiProperty({
-    description: "Menor preço em 24h",
-    required: false,
-  })
-  low24h!: number | null;
+  low24h!: Decimal | null;
 }
 
 // export class CreateMatchDto extends OmitType(MatchDto, [

@@ -11,6 +11,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Formats an amount the API sent as a decimal string, for display only. */
+export function formatAmount(value: string | number, decimals = 2) {
+  return Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
 export function defaultPaginatedResponse<U>(): PaginatedResponse<U> {
   return {
     count: 0,

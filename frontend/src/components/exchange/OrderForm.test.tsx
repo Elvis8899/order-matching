@@ -37,7 +37,7 @@ describe("OrderForm", () => {
       fireEvent.click(screen.getByRole("button", { name: button }));
 
       await waitFor(() => expect(toast.success).toHaveBeenCalledWith(message));
-      expect(submitOrder).toHaveBeenCalledWith(side, 30000, 0.5);
+      expect(submitOrder).toHaveBeenCalledWith(side, "30000", "0.5");
       expect(amount()).toHaveValue(null);
       expect(price()).toHaveValue(null);
     },
@@ -93,7 +93,7 @@ describe("OrderForm", () => {
     "Should fill the %s form from the order book, once",
     (side, fillKey, setKey) => {
       const { state } = renderWithExchange(<OrderForm side={side} />, {
-        [fillKey]: { price: 30000, amount: 0.25 },
+        [fillKey]: { price: "30000", amount: "0.25" },
       });
 
       expect(amount()).toHaveValue(0.25);

@@ -1,11 +1,7 @@
+import { formatAmount } from "@/lib/utils";
 import Pagination from "@/components/shared/Pagination";
 import { useExchange } from "@/lib/ExchangeContext";
 
-const fmt = (n: number, d = 2) =>
-  n.toLocaleString("en-US", {
-    minimumFractionDigits: d,
-    maximumFractionDigits: d,
-  });
 
 const OrderBook = () => {
   const {
@@ -15,12 +11,12 @@ const OrderBook = () => {
     setFillFormAsk,
   } = useExchange();
 
-  const handleBidClick = (price: number, amount: number) => {
+  const handleBidClick = (price: string, amount: string) => {
     // Clicking a bid fills the sell form
     setFillFormAsk({ price, amount });
   };
 
-  const handleAskClick = (price: number, amount: number) => {
+  const handleAskClick = (price: string, amount: string) => {
     // Clicking an ask fills the buy form
     setFillFormBuy({ price, amount });
   };
@@ -56,9 +52,9 @@ const OrderBook = () => {
                 className="border-t border-border/50 cursor-pointer hover:bg-accent transition-colors"
                 onClick={() => handleBidClick(level.price, level.amount)}
               >
-                <td className="py-1 text-buy">${fmt(level.price)}</td>
+                <td className="py-1 text-buy">${formatAmount(level.price)}</td>
                 <td className="py-1 text-right text-muted-foreground">
-                  {fmt(level.volume, 6)}
+                  {formatAmount(level.volume, 6)}
                 </td>
               </tr>
             ))}
@@ -97,9 +93,9 @@ const OrderBook = () => {
                 className="border-t border-border/50 cursor-pointer hover:bg-accent transition-colors"
                 onClick={() => handleAskClick(level.price, level.amount)}
               >
-                <td className="py-1 text-sell">${fmt(level.price)}</td>
+                <td className="py-1 text-sell">${formatAmount(level.price)}</td>
                 <td className="py-1 text-right text-muted-foreground">
-                  {fmt(level.volume, 6)}
+                  {formatAmount(level.volume, 6)}
                 </td>
               </tr>
             ))}

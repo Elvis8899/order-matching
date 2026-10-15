@@ -1,10 +1,6 @@
+import { formatAmount } from "@/lib/utils";
 import { useExchange } from "@/lib/ExchangeContext";
 
-const fmt = (n: number, decimals = 2) =>
-  n.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
 
 const Statistics = () => {
   const { stats, wallet } = useExchange();
@@ -12,17 +8,17 @@ const Statistics = () => {
   const items = [
     {
       label: "Last Price",
-      value: stats.lastPrice !== null ? `$${fmt(stats.lastPrice)}` : "—",
+      value: stats.lastPrice !== null ? `$${formatAmount(stats.lastPrice)}` : "—",
     },
-    { label: "BTC Vol 24h", value: `${fmt(stats.btcVolume24h, 4)} BTC` },
-    { label: "USD Vol 24h", value: `$${fmt(stats.usdVolume24h)}` },
+    { label: "BTC Vol 24h", value: `${formatAmount(stats.btcVolume24h, 4)} BTC` },
+    { label: "USD Vol 24h", value: `$${formatAmount(stats.usdVolume24h)}` },
     {
       label: "24h High",
-      value: stats.high24h !== null ? `$${fmt(stats.high24h)}` : "—",
+      value: stats.high24h !== null ? `$${formatAmount(stats.high24h)}` : "—",
     },
     {
       label: "24h Low",
-      value: stats.low24h !== null ? `$${fmt(stats.low24h)}` : "—",
+      value: stats.low24h !== null ? `$${formatAmount(stats.low24h)}` : "—",
     },
   ];
 
@@ -50,7 +46,7 @@ const Statistics = () => {
               USD Balance
             </span>
             <div className="font-mono text-sm text-buy font-semibold">
-              ${fmt(wallet.usd)}
+              ${formatAmount(wallet.usd)}
             </div>
           </div>
           <div>
@@ -58,7 +54,7 @@ const Statistics = () => {
               BTC Balance
             </span>
             <div className="font-mono text-sm text-buy font-semibold">
-              {fmt(wallet.btc, 6)} BTC
+              {formatAmount(wallet.btc, 6)} BTC
             </div>
           </div>
         </div>

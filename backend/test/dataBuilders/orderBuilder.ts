@@ -5,6 +5,7 @@ import {
 } from "@exchange/domain/order.entity";
 import { CreateOrderDto } from "@exchange/dtos/order.dto";
 import { FPF } from "@shared/utils/application/monads";
+import { DecimalInput } from "@shared/utils/domain/decimal";
 import { UUID } from "@shared/uuid/entities/uuid";
 import { BuilderPort } from "@test/util/builder.port";
 import { createTestId, TableNameEnum } from "@test/util/defaultIds";
@@ -50,12 +51,12 @@ export class OrderBuilder extends BuilderPort<z.input<typeof Order>> {
     return this;
   }
 
-  withAmount(amount: number) {
+  withAmount(amount: DecimalInput) {
     this.overrides.amount = amount;
     return this;
   }
 
-  withPrice(price: number) {
+  withPrice(price: DecimalInput) {
     this.overrides.price = price;
     return this;
   }
